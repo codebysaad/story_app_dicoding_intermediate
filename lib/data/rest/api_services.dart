@@ -80,45 +80,42 @@ class ApiServices {
     }
   }
 
-  // Future<GeneralResponse> addNewStory({imageFile, description, lat = 0, lon = 0}) async {
-  //   final token = await AuthLocalDatasource().getToken();
-  //   final XFile image = imageFile;
-  //   final bytes = await image.readAsBytes();
-  //   try {
-  //     final url = Uri.parse('$baseUrl/stories');
-  //     var request = http.MultipartRequest('POST', url);
-  //
-  //     final multiPartFile = http.MultipartFile.fromBytes("photo", bytes,
-  //         filename: imageFile.name);
-  //
-  //     final Map<String, String> fields = {
-  //       "description": description,
-  //       "lat": lat.toString(),
-  //       "lon": lon.toString(),
-  //     };
-  //
-  //     final Map<String, String> headers = {
-  //       "Content-type": "multipart/form-data",
-  //       'Authorization': 'Bearer $token',
-  //     };
-  //
-  //     request.files.add(multiPartFile);
-  //     request.fields.addAll(fields);
-  //     request.headers.addAll(headers);
-  //
-  //     final http.StreamedResponse streamedResponse = await request.send();
-  //     final int statusCode = streamedResponse.statusCode;
-  //
-  //     final Uint8List responseList = await streamedResponse.stream.toBytes();
-  //     final String responseData = String.fromCharCodes(responseList);
-  //
-  //     if (statusCode == 200) {
-  //       return GeneralResponse.fromJson(json.decode(responseData));
-  //     } else {
-  //       throw Exception('Failed to load data');
-  //     }
-  //   } catch(e) {
-  //     throw Exception(e);
-  //   }
-  // }
+  Future<GeneralResponse> addNewStory(String token, List<int> bytes, String description, String fileName,
+      {double? lat, double? lon}) async {
+    try {
+      final url = Uri.parse('$baseUrl/stories');
+      var request = http.MultipartRequest('POST', url);
+      final multiPartFile = http.MultipartFile.fromBytes("photo", bytes,
+          filename: fileName);
+
+      final Map<String, String> fields = {
+        "description": description,
+        "lat": lat.toString(),
+        "lon": lon.toString(),
+      };
+
+      final Map<String, String> headers = {
+        "Content-type": "multipart/form-data",
+        'Authorization': 'Bearer $token',
+      };
+
+      request.files.add(multiPartFile);
+      request.fields.addAll(fields);
+      request.headers.addAll(headers);
+
+      final http.StreamedResponse streamedResponse = await request.send();
+      final int statusCode = streamedResponse.statusCode;
+
+      final Uint8List responseList = await streamedResponse.stream.toBytes();
+      final String responseData = String.fromCharCodes(responseList);
+
+      if (statusCode == 200) {
+        return GeneralResponse.fromJson(json.decode(responseData));
+      } else {
+        throw Exception('Failed to load data');
+      }
+    } catch(e) {
+      throw Exception(e);
+    }
+  }
 }

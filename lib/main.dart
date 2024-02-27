@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:story_app/data/preference/preferences_helper.dart';
 import 'package:story_app/data/rest/api_services.dart';
+import 'package:story_app/pages/add_new_story_page.dart';
 import 'package:story_app/pages/details_page.dart';
 import 'package:story_app/pages/error_page.dart';
 import 'package:story_app/pages/home3_page.dart';
@@ -11,9 +12,9 @@ import 'package:story_app/pages/login3_page.dart';
 import 'package:story_app/pages/register3_page.dart';
 import 'package:story_app/pages/splash_screen.dart';
 import 'package:story_app/providers/auth_provider.dart';
+import 'package:story_app/providers/custom_image_provider.dart';
 import 'package:story_app/providers/preference_provider.dart';
 import 'package:story_app/providers/stories_provider.dart';
-import 'package:story_app/routes/app_route_config.dart';
 import 'package:http/http.dart' as http;
 import 'package:story_app/routes/app_route_paths.dart';
 
@@ -31,6 +32,7 @@ class _MyApp extends State<MyApp> {
   late AuthProvider authProvider;
   late StoriesProvider storiesProvider;
   late PreferencesHelper preferencesHelper;
+  late PreferenceProvider preferenceProvider;
   late Future<SharedPreferences> sharedPref;
   GoRouter? router;
 
@@ -38,7 +40,7 @@ class _MyApp extends State<MyApp> {
   void initState() {
     super.initState();
     final preferencesHelper = PreferencesHelper();
-    final preferenceProvider = PreferenceProvider(preferencesHelper: preferencesHelper);
+    preferenceProvider = PreferenceProvider(preferencesHelper: preferencesHelper);
     final apiServices = ApiServices(http.Client());
     authProvider = AuthProvider(apiServices: apiServices, preferenceHelper: preferencesHelper);
     storiesProvider = StoriesProvider(apiServices: apiServices);
@@ -50,25 +52,16 @@ class _MyApp extends State<MyApp> {
       providers: [
         ChangeNotifierProvider.value(value: authProvider),
         ChangeNotifierProvider.value(value: storiesProvider),
+        ChangeNotifierProvider.value(value: preferenceProvider),
+        ChangeNotifierProvider.value(
+          value: CustomImageProvider(),
+        ),
         // ChangeNotifierProvider(
-        //   create: (_) => StoriesProvider(
-        //     apiServices: ApiServices(http.Client()),
+        //   create: (context) => PreferenceProvider(
+        //     preferencesHelper:
+        //         PreferencesHelper(),
         //   ),
-        // ),
-        // ChangeNotifierProvider(
-        //   create: (_) => RestaurantSearchProvider(
-        //     apiService: ApiService(http.Client()),
-        //   ),
-        // ),
-        // ChangeNotifierProvider(
-        //   create: (_) => SchedulingProvider(),
-        // ),
-        ChangeNotifierProvider(
-          create: (context) => PreferenceProvider(
-            preferencesHelper:
-                PreferencesHelper(),
-          ),
-        )
+        // )
       ],
       child: FutureBuilder<void>(
         future: authProvider.init(),
@@ -107,11 +100,11 @@ class _MyApp extends State<MyApp> {
                                 state.pathParameters['id'] ?? 'no id';
                             return DetailsPage(id: storyId);
                           }),
-                      // GoRoute(
-                      //   path: 'add',
-                      //   name: 'add',
-                      //   builder: (context, state) => const AddStoryPage(),
-                      // )
+                      GoRoute(
+                        path: AppRoutePaths.addStoryRouteName,
+                        name: AppRoutePaths.addStoryRouteName,
+                        builder: (context, state) => const AddNewStoryPage(),
+                      )
                     ]),
               ],
               redirect: (context, state) {

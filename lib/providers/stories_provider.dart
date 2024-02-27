@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/cupertino.dart';
 import 'package:story_app/data/models/details_story_response.dart';
+import 'package:story_app/data/models/general_response.dart';
 import 'package:story_app/data/models/stories_response.dart';
 import 'package:story_app/utils/state_activity.dart';
 
@@ -17,6 +18,9 @@ class StoriesProvider with ChangeNotifier {
 
   late DetailsStoryResponse _detailsStoryResponse;
   DetailsStoryResponse get detailsStoryResponse => _detailsStoryResponse;
+
+  late GeneralResponse _addNewStoryResponse;
+  GeneralResponse get addNewStoryResponse => _addNewStoryResponse;
 
   late StateActivity _state;
   StateActivity get state => _state;
@@ -92,6 +96,42 @@ class StoriesProvider with ChangeNotifier {
         notifyListeners();
 
         return _detailsStoryResponse = responses;
+      }
+    } catch (e) {
+      _isLoading = false;
+      _state = StateActivity.error;
+      _message = 'Error --> $e';
+      notifyListeners();
+      return _message;
+    }
+  }
+
+  Future<dynamic> addNewStory(
+      {
+        required String token, required List<int> bytes, required String description, required String fileName, required double lat, required double lon}) async {
+    try {
+      _isLoading = true;
+      _state = StateActivity.loading;
+      notifyListeners();
+
+      final addingStory = await apiServices.addNewStory(token, bytes, description, fileName);
+
+      if (addingStory.error == true) {
+        _isLoading = false;
+        _state = StateActivity.noData;
+        _message = addingStory.message;
+        log(message);
+        notifyListeners();
+
+        return _addNewStoryResponse = addingStory;
+      } else {
+        _isLoading = false;
+        _state = StateActivity.hasData;
+        _message = addingStory.message;
+        log(addingStory.message.toString());
+        notifyListeners();
+
+        return _addNewStoryResponse = addingStory;
       }
     } catch (e) {
       _isLoading = false;

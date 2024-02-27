@@ -170,7 +170,8 @@ class _Register3Page extends State<Register3Page> {
                                           message: provider.message,
                                           context: context);
                                       if (!provider.registerResponse.error) {
-                                        context.go('/${AppRoutePaths.loginRouteName}');
+                                        // context.go('/${AppRoutePaths.loginRouteName}');
+                                        context.pop(true);
                                       }
                                     } else {
                                       showMessage(
