@@ -1,0 +1,1 @@
+enum StateActivity { loading, noData, hasData, error }
