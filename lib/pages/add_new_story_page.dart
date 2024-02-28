@@ -1,18 +1,18 @@
-import 'dart:developer';
 import 'dart:io';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
-import 'package:geocoding/geocoding.dart' as geo;
 import 'package:story_app/providers/custom_image_provider.dart';
 import 'package:story_app/providers/preference_provider.dart';
 import 'package:story_app/providers/stories_provider.dart';
-import 'package:story_app/utils/location_handler.dart';
-import 'package:story_app/utils/placemark_widget.dart';
+
+import '../layouts/custom_pop_menu.dart';
+import '../layouts/loading_animation.dart';
+import '../utils/snack_message.dart';
+import '../utils/state_activity.dart';
 
 class AddNewStoryPage extends StatefulWidget {
   const AddNewStoryPage({super.key});
@@ -24,10 +24,6 @@ class AddNewStoryPage extends StatefulWidget {
 class _AddNewStoryPageState extends State<AddNewStoryPage> {
   final TextEditingController descriptionController = TextEditingController();
   final formKey = GlobalKey<FormState>();
-  final LocationHandler _locationHandler = LocationHandler();
-
-  LatLng inputLang = const LatLng(0.0, 0.0);
-  geo.Placemark? placemark;
   bool isLoadingLocation = false;
 
   @override
@@ -36,11 +32,29 @@ class _AddNewStoryPageState extends State<AddNewStoryPage> {
     super.dispose();
   }
 
+  final loading = SpinKitFadingCircle(
+    itemBuilder: (BuildContext context, int index) {
+      return DecoratedBox(
+        decoration: BoxDecoration(
+          color: index.isEven ? Colors.red : Colors.green,
+        ),
+      );
+    },
+  );
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('New Story'),
+        iconTheme: const IconThemeData(color: Colors.white),
+        title: const Text(
+          'Add New Story',
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: Colors.blueAccent,
+        actions: const [
+          CustomPopMenu(),
+        ],
       ),
       body: Form(
         key: formKey,
@@ -52,13 +66,29 @@ class _AddNewStoryPageState extends State<AddNewStoryPage> {
               _buildImagePreview(),
               _buildImageButtons(),
               _buildDescriptionTextField(),
-              _buildInputLocationButton(),
               const SizedBox(height: 12),
-              if (placemark == null)
-                const SizedBox()
-              else
-                PlacemarkWidget(placemark: placemark!),
-              _buildUploadButton(),
+              Consumer<StoriesProvider>(
+                  builder: (context, storiesProvider, child) {
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (storiesProvider.message != "") {
+                        if (storiesProvider.addNewStoryResponse.error) {
+                          showMessage(
+                              message: storiesProvider.message,
+                              context: context);
+                          storiesProvider.clear();
+                        } else {
+                          showMessage(
+                              message: storiesProvider.message,
+                              context: context);
+                          storiesProvider.clear();
+                          context.go('/');
+                        }
+                      }
+                    });
+                return storiesProvider.isLoading
+                    ? loading
+                    : _buildUploadButton();
+              }),
             ],
           ),
         ),
@@ -104,20 +134,35 @@ class _AddNewStoryPageState extends State<AddNewStoryPage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          _buildElevatedButton("Gallery", _onGalleryView),
+          _buildElevatedButton(
+              "Gallery",
+              _onGalleryView,
+              Colors.purple,
+              const Icon(
+                Icons.image_rounded,
+                color: Colors.white,
+              )),
           const SizedBox(width: 16),
-          _buildElevatedButton("Camera", _onCameraView),
+          _buildElevatedButton("Camera", _onCameraView, Colors.deepPurple,
+              const Icon(Icons.camera, color: Colors.white)),
         ],
       ),
     );
   }
 
-  Widget _buildElevatedButton(String label, VoidCallback onPressed) {
-    return ElevatedButton(
+  Widget _buildElevatedButton(
+      String label, VoidCallback onPressed, Color colorButton, Icon icon) {
+    return ElevatedButton.icon(
       onPressed: onPressed,
-      child: Text(
+      style: ElevatedButton.styleFrom(
+        shape: const StadiumBorder(),
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+        backgroundColor: colorButton,
+      ),
+      icon: icon,
+      label: Text(
         label,
-        style: const TextStyle(color: Colors.white),
+        style: const TextStyle(fontSize: 20, color: Colors.white),
       ),
     );
   }
@@ -126,7 +171,7 @@ class _AddNewStoryPageState extends State<AddNewStoryPage> {
     return TextField(
       controller: descriptionController,
       keyboardType: TextInputType.multiline,
-      maxLines: null,
+      maxLines: 6,
       decoration: const InputDecoration(
         hintText: 'Enter your story description...',
         labelText: 'Description',
@@ -137,143 +182,56 @@ class _AddNewStoryPageState extends State<AddNewStoryPage> {
     );
   }
 
-  Widget _buildInputLocationButton() {
+  Widget _buildUploadButton() {
     return Padding(
       padding: const EdgeInsets.only(top: 16.0),
       child: ElevatedButton(
-        onPressed: _onMyLocationButtonPress,
+        onPressed: () {
+          _onUpload();
+        },
         style: ElevatedButton.styleFrom(
-          padding: const EdgeInsets.all(16.0),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8.0),
-          ),
+          shape: const StadiumBorder(),
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          backgroundColor: Colors.blueAccent,
         ),
-        child: isLoadingLocation
-            ? const SizedBox(
-                width: 24.0,
-                height: 24.0,
-                child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                ),
-              )
-            : const Text(
-                "Input Location",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
+        child: const Text(
+          "Upload",
+          style: TextStyle(fontSize: 20, color: Colors.white),
+        ),
       ),
     );
   }
 
-  Widget _buildUploadButton() {
-    final isUploading = context.watch<StoriesProvider>().isLoading;
+  _onUpload() async {
+    final storiesProvider = context.read<StoriesProvider>();
 
-    return Consumer<PreferenceProvider>(builder: (context, provider, child) {
-      return Padding(
-        padding: const EdgeInsets.only(top: 16.0),
-        child: ElevatedButton(
-          onPressed: isUploading ? null : _onUpload(provider.authToken),
-          style: ElevatedButton.styleFrom(
-            padding: const EdgeInsets.all(16.0),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8.0),
-            ),
-          ),
-          child: isUploading
-              ? const SizedBox(
-            width: 24.0,
-            height: 24.0,
-            child: CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-            ),
-          )
-              : const Text(
-            "Upload",
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-          ),
-        ),
-      );
-    });
-  }
-
-  void _onMyLocationButtonPress() async {
-    setState(() {
-      isLoadingLocation = true;
-    });
-
-    try {
-      final LatLng? latLng = await _locationHandler.getCurrentLocation();
-
-      if (latLng != null) {
-        final geo.Placemark? place = await _locationHandler.getPlacemark(
-            latLng.latitude, latLng.longitude);
-
-        setState(() {
-          inputLang = latLng;
-          placemark = place;
-        });
-      }
-    } catch (e) {
-      log("Error getting location: $e");
-
-      if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Error getting location!"),
-        ),
-      );
-      // Handle error if needed
-    } finally {
-      setState(() {
-        isLoadingLocation = false;
-      });
-    }
-  }
-
-  _onUpload(String token) async {
-    final ScaffoldMessengerState scaffoldMessengerState =
-        ScaffoldMessenger.of(context);
-
-    final uploadProvider = context.read<StoriesProvider>();
-
-    final homeProvider = context.read<CustomImageProvider>();
-    final imagePath = homeProvider.imagePath;
-    final imageFile = homeProvider.imageFile;
+    final customImageProvider = context.read<CustomImageProvider>();
+    final imagePath = customImageProvider.imagePath;
+    final imageFile = customImageProvider.imageFile;
 
     if (imagePath == null || imageFile == null) return;
 
     final fileName = imageFile.name;
     final bytes = await imageFile.readAsBytes();
-    final newBytes = await homeProvider.compressImage(bytes);
+    final newBytes = await customImageProvider.compressImage(bytes);
 
-    await uploadProvider.addNewStory(
-      token: token,
+    await storiesProvider.addNewStory(
       bytes: newBytes,
       description: descriptionController.text.isNotEmpty
           ? descriptionController.text
           : 'No Description',
       fileName: fileName,
-      lat: inputLang.latitude,
-      lon: inputLang.longitude,
     );
 
-    if (!uploadProvider.addNewStoryResponse.error) {
-      homeProvider.setImageFile(null);
-      homeProvider.setImagePath(null);
-      if (!context.mounted) return;
-      context.pop(true);
-    }
-
-    scaffoldMessengerState.showSnackBar(
-      SnackBar(content: Text(uploadProvider.message)),
-    );
+    // if (!storiesProvider.addNewStoryResponse.error) {
+    //   // customImageProvider.setImageFile(null);
+    //   // customImageProvider.setImagePath(null);
+    //   // if (!context.mounted) return;
+    //   showMessage(message: storiesProvider.message, context: context);
+    //   context.pop(true);
+    // } else {
+    //   showMessage(message: storiesProvider.message, context: context);
+    // }
   }
 
   _onGalleryView() async {

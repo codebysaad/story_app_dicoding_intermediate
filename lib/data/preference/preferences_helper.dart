@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PreferencesHelper {
@@ -8,10 +10,8 @@ class PreferencesHelper {
 
   Future<bool> isLoggedIn() async {
     final preferences = await SharedPreferences.getInstance();
-    // await Future.delayed(const Duration(seconds: 2));
+    log('Preference: ${preferences.getBool(stateLogin)}');
     return preferences.getBool(stateLogin) ?? false;
-    // final sPref = await sharedPref;
-    // return sPref.getBool(stateLogin) ?? false;
   }
 
   void setLoginState(bool value) async {
@@ -42,8 +42,12 @@ class PreferencesHelper {
   Future<bool> logout() async {
     final preferences = await SharedPreferences.getInstance();
     await Future.delayed(const Duration(seconds: 2));
-    preferences.remove(authToken);
-    preferences.remove(stateLogin);
-    return true;
+    return preferences.setBool(stateLogin, false);
+  }
+
+  Future<bool> deleteUser() async {
+    final preferences = await SharedPreferences.getInstance();
+    await Future.delayed(const Duration(seconds: 2));
+    return preferences.setString(authToken, "");
   }
 }

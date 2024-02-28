@@ -9,7 +9,6 @@ import 'package:story_app/routes/app_route_paths.dart';
 import 'package:story_app/utils/state_activity.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
-import '../layouts/button.dart';
 import '../utils/snack_message.dart';
 
 class Login2Page extends StatefulWidget {
@@ -78,7 +77,7 @@ class _Login2PageState extends State<Login2Page> {
                       // }
                       WidgetsBinding.instance.addPostFrameCallback((_) {
                         if(provider.state == StateActivity.loading){
-                          const LoadingAnimation();
+                          const LoadingAnimation(message: 'Loading...',);
                         } else if(provider.state == StateActivity.hasData){
                           showMessage(
                               message: provider.loginResponse.message, context: context);

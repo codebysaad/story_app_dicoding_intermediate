@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -43,7 +45,7 @@ class _MyApp extends State<MyApp> {
     preferenceProvider = PreferenceProvider(preferencesHelper: preferencesHelper);
     final apiServices = ApiServices(http.Client());
     authProvider = AuthProvider(apiServices: apiServices, preferenceHelper: preferencesHelper);
-    storiesProvider = StoriesProvider(apiServices: apiServices);
+    storiesProvider = StoriesProvider(apiServices: apiServices, preferenceProvider: preferenceProvider);
   }
 
   @override
@@ -93,12 +95,14 @@ class _MyApp extends State<MyApp> {
                     builder: (context, state) => const Home3Page(),
                     routes: [
                       GoRoute(
-                          path: '${AppRoutePaths.detailRouteName}/:id',
+                          path: '${AppRoutePaths.detailRouteName}/:id/:title',
                           name: AppRoutePaths.detailRouteName,
                           builder: (context, state) {
                             String storyId =
                                 state.pathParameters['id'] ?? 'no id';
-                            return DetailsPage(id: storyId);
+                            String title =
+                                state.pathParameters['title'] ?? 'no title';
+                            return DetailsPage(id: storyId, title: title,);
                           }),
                       GoRoute(
                         path: AppRoutePaths.addStoryRouteName,
@@ -121,6 +125,7 @@ class _MyApp extends State<MyApp> {
               debugLogDiagnostics: true,
               routerNeglect: true,
             );
+            log('Login Status Main: ${authProvider.isLoggedIn}');
             return MaterialApp.router(
               theme: ThemeData(visualDensity: VisualDensity.adaptivePlatformDensity),
               routeInformationParser: router?.routeInformationParser,

@@ -8,28 +8,11 @@ import 'package:story_app/utils/state_activity.dart';
 
 import '../data/preference/preferences_helper.dart';
 
-enum Status {
-  NotLoggedIn,
-  NotRegistered,
-  LoggedIn,
-  Registered,
-  Authenticating,
-  Registering,
-  LoggedOut
-}
-
 class AuthProvider with ChangeNotifier {
   final ApiServices apiServices;
   final PreferencesHelper preferenceHelper;
 
   AuthProvider({required this.apiServices, required this.preferenceHelper});
-
-  Status _loggedInStatus = Status.NotLoggedIn;
-  Status _registeredInStatus = Status.NotRegistered;
-
-  Status get loggedInStatus => _loggedInStatus;
-
-  Status get registeredInStatus => _registeredInStatus;
 
   late LoginResponse _loginResponse;
   LoginResponse get loginResponse => _loginResponse;
@@ -42,7 +25,9 @@ class AuthProvider with ChangeNotifier {
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
-  bool isLoggedIn = false;
+
+  bool _isLoggedIn = false;
+  bool get isLoggedIn => _isLoggedIn;
 
   void clear() {
     _message = "";
@@ -53,7 +38,8 @@ class AuthProvider with ChangeNotifier {
   String get message => _message;
 
   Future<void> init() async {
-    isLoggedIn = await preferenceHelper.isLoggedIn();
+    _isLoggedIn = await preferenceHelper.isLoggedIn();
+    log('Status LoggedIn : $isLoggedIn');
     notifyListeners();
   }
 
@@ -125,17 +111,37 @@ class AuthProvider with ChangeNotifier {
   Future<bool> logout() async {
     _isLoading = true;
     notifyListeners();
-
-    try {
-      await preferenceHelper.logout();
-      _message = 'Logout Success';
-    } catch (e) {
-      _message = 'Error --> $e';
-      throw Exception('Logout failed: $e');
+    final logout = await preferenceHelper.logout();
+    if (logout) {
+      await preferenceHelper.deleteUser();
     }
-    // isLoggedIn = await preferenceHelper.isLoggedIn();
+    _isLoggedIn = await preferenceHelper.isLoggedIn();
     _isLoading = false;
     notifyListeners();
     return !isLoggedIn;
   }
+
+  // Future<bool> logout() async {
+  //   _isLoading = true;
+  //   _state = StateActivity.loading;
+  //   notifyListeners();
+  //
+  //   try {
+  //     // preferenceHelper.setLoginState(false);
+  //     preferenceHelper.logout();
+  //     _state = StateActivity.noData;
+  //     _message = 'Logout Success';
+  //     _isLoading = false;
+  //   } catch (e) {
+  //     _message = 'Error --> $e';
+  //     _isLoading = false;
+  //     _state = StateActivity.error;
+  //     throw Exception('Logout failed: $e');
+  //   }
+  //   _isLoggedIn = await preferenceHelper.isLoggedIn();
+  //   log('Status Logout: $isLoggedIn');
+  //   // _isLoading = false;
+  //   notifyListeners();
+  //   return isLoggedIn;
+  // }
 }

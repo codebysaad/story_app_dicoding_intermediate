@@ -4,14 +4,16 @@ import 'package:flutter/cupertino.dart';
 import 'package:story_app/data/models/details_story_response.dart';
 import 'package:story_app/data/models/general_response.dart';
 import 'package:story_app/data/models/stories_response.dart';
+import 'package:story_app/providers/preference_provider.dart';
 import 'package:story_app/utils/state_activity.dart';
 
 import '../data/rest/api_services.dart';
 
 class StoriesProvider with ChangeNotifier {
   final ApiServices apiServices;
+  final PreferenceProvider preferenceProvider;
 
-  StoriesProvider({required this.apiServices});
+  StoriesProvider({required this.apiServices, required this.preferenceProvider});
 
   late StoriesResponse _storiesResponse;
   StoriesResponse get storiesResponse => _storiesResponse;
@@ -36,14 +38,14 @@ class StoriesProvider with ChangeNotifier {
   String _message = '';
   String get message => _message;
 
-  Future<dynamic> getAllStories(
-      {required String token}) async {
+  Future<dynamic> getAllStories() async {
     try {
       _isLoading = true;
       _state = StateActivity.loading;
       notifyListeners();
+      final token = preferenceProvider.authToken;
 
-      final responses = await apiServices.getAllStories(token, 1, 20, 1);
+      final responses = await apiServices.getAllStories(token);
 
       if (responses.error == true) {
         _isLoading = false;
@@ -71,9 +73,11 @@ class StoriesProvider with ChangeNotifier {
     }
   }
 
-  Future<dynamic> getDetailStory(
-      {required String token, required String id}) async {
+  Future<dynamic> getDetailStory({required String id}) async {
     try {
+      final token = preferenceProvider.authToken;
+      log('Token Stories Prov: $token');
+
       _isLoading = true;
       _state = StateActivity.loading;
       notifyListeners();
@@ -86,6 +90,7 @@ class StoriesProvider with ChangeNotifier {
         _message = responses.message;
         log(message);
         notifyListeners();
+        log('Error : ${responses.message}');
 
         return _detailsStoryResponse = responses;
       } else {
@@ -93,6 +98,7 @@ class StoriesProvider with ChangeNotifier {
         _state = StateActivity.hasData;
         _message = responses.message;
         log(responses.story.name.toString());
+        log('Detail Story : ${responses.story}');
         notifyListeners();
 
         return _detailsStoryResponse = responses;
@@ -101,6 +107,7 @@ class StoriesProvider with ChangeNotifier {
       _isLoading = false;
       _state = StateActivity.error;
       _message = 'Error --> $e';
+      log('Exception : $e');
       notifyListeners();
       return _message;
     }
@@ -108,11 +115,13 @@ class StoriesProvider with ChangeNotifier {
 
   Future<dynamic> addNewStory(
       {
-        required String token, required List<int> bytes, required String description, required String fileName, required double lat, required double lon}) async {
+        required List<int> bytes, required String description, required String fileName}) async {
     try {
       _isLoading = true;
       _state = StateActivity.loading;
       notifyListeners();
+
+      final token = preferenceProvider.authToken;
 
       final addingStory = await apiServices.addNewStory(token, bytes, description, fileName);
 

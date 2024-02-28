@@ -1,0 +1,1 @@
+enum OptionItems { profile, settings, logout }

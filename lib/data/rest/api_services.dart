@@ -47,8 +47,8 @@ class ApiServices {
     }
   }
 
-  Future<StoriesResponse> getAllStories(String token, int? page, int? size, int? location) async {
-    final url = Uri.parse('$baseUrl/stories?location=1');
+  Future<StoriesResponse> getAllStories(String token) async {
+    final url = Uri.parse('$baseUrl/stories?location=0');
     // final url = Uri.parse('$baseUrl/stories?page=$page&size=$size&location=1');
     final response = await client.get(
       url,
@@ -80,8 +80,7 @@ class ApiServices {
     }
   }
 
-  Future<GeneralResponse> addNewStory(String token, List<int> bytes, String description, String fileName,
-      {double? lat, double? lon}) async {
+  Future<GeneralResponse> addNewStory(String token, List<int> bytes, String description, String fileName,) async {
     try {
       final url = Uri.parse('$baseUrl/stories');
       var request = http.MultipartRequest('POST', url);
@@ -90,8 +89,6 @@ class ApiServices {
 
       final Map<String, String> fields = {
         "description": description,
-        "lat": lat.toString(),
-        "lon": lon.toString(),
       };
 
       final Map<String, String> headers = {

@@ -115,9 +115,18 @@ class _Login3Page extends State<Login3Page> {
             children: [
               const Column(
                 children: [
-                  Text(
-                    "Welcome Back",
-                    style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "Welcome ",
+                        style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold, color: Colors.blueAccent),
+                      ),
+                      Text(
+                        "Back",
+                        style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
+                      ),
+                    ],
                   ),
                   Text("Enter your credential to login"),
                 ],
@@ -181,7 +190,7 @@ class _Login3Page extends State<Login3Page> {
                                 shape: const StadiumBorder(),
                                 padding:
                                     const EdgeInsets.symmetric(vertical: 16),
-                                backgroundColor: Colors.purple,
+                                backgroundColor: Colors.blueAccent,
                               ),
                               child: const Text(
                                 "Login",
@@ -193,13 +202,6 @@ class _Login3Page extends State<Login3Page> {
                   }),
                 ],
               ),
-              TextButton(
-                onPressed: () {},
-                child: const Text(
-                  "Forgot password?",
-                  style: TextStyle(color: Colors.purple),
-                ),
-              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -210,7 +212,7 @@ class _Login3Page extends State<Login3Page> {
                       },
                       child: const Text(
                         "Register",
-                        style: TextStyle(color: Colors.purple),
+                        style: TextStyle(color: Colors.blueAccent),
                       ))
                 ],
               ),

@@ -52,12 +52,6 @@ dependencies:
     sdk: flutter
   intl: ^0.18.1
 
-  #Maps Dep
-  google_maps_flutter_web: ^0.5.4+3
-  google_maps_flutter: ^2.5.3
-  location: ^5.0.3
-  geocoding: ^2.1.1
-
   # Media
   camera: ^0.10.5
   camera_windows: ^0.2.1+6
@@ -91,6 +85,7 @@ flutter:
     - assets/
     - assets/images/
     - assets/lotties/
+    - assets/fonts/
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 

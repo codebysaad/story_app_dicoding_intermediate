@@ -18,7 +18,7 @@ class CustomTextField extends StatelessWidget {
               borderRadius: BorderRadius.circular(18),
               borderSide: BorderSide.none
           ),
-          fillColor: Colors.purple.withOpacity(0.1),
+          fillColor: Colors.blueAccent.withOpacity(0.1),
           filled: true,
           prefixIcon: const Icon(Icons.person)),
     );

@@ -184,7 +184,7 @@ class _Register3Page extends State<Register3Page> {
                                   shape: const StadiumBorder(),
                                   padding:
                                       const EdgeInsets.symmetric(vertical: 16),
-                                  backgroundColor: Colors.purple,
+                                  backgroundColor: Colors.blueAccent,
                                 ),
                                 child: const Text(
                                   "Register",
@@ -203,7 +203,7 @@ class _Register3Page extends State<Register3Page> {
                             },
                             child: const Text(
                               "Login",
-                              style: TextStyle(color: Colors.purple),
+                              style: TextStyle(color: Colors.blueAccent),
                             ))
                       ],
                     )

@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 class TextMessage extends StatelessWidget {
   final String image;
   final String message;
+  final String? titleButton;
   final Function()? onPressed;
 
   const TextMessage({
     super.key,
     required this.image,
     required this.message,
+    this.titleButton,
     this.onPressed,
   });
 
@@ -29,15 +31,15 @@ class TextMessage extends StatelessWidget {
             style: Theme.of(context).textTheme.titleMedium,
           ),
           const SizedBox(height: 8),
-          if (onPressed != null)
+          if (onPressed != null && titleButton != null)
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red
               ),
               onPressed: onPressed,
-              child: const Text(
-                'Refresh',
-                style: TextStyle(color: Colors.white),
+              child: Text(
+                titleButton!,
+                style: const TextStyle(color: Colors.white),
               ),
             ),
         ],
