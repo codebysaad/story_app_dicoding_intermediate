@@ -1,18 +1,20 @@
 import 'dart:io';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:story_app/layouts/custom_image_button.dart';
 import 'package:story_app/providers/custom_image_provider.dart';
-import 'package:story_app/providers/preference_provider.dart';
 import 'package:story_app/providers/stories_provider.dart';
-
+import 'package:story_app/utils/state_activity.dart';
 import '../layouts/custom_pop_menu.dart';
 import '../layouts/loading_animation.dart';
+import '../utils/platform_widget.dart';
 import '../utils/snack_message.dart';
-import '../utils/state_activity.dart';
 
 class AddNewStoryPage extends StatefulWidget {
   const AddNewStoryPage({super.key});
@@ -44,55 +46,124 @@ class _AddNewStoryPageState extends State<AddNewStoryPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        iconTheme: const IconThemeData(color: Colors.white),
-        title: const Text(
-          'Add New Story',
-          style: TextStyle(color: Colors.white),
-        ),
-        backgroundColor: Colors.blueAccent,
-        actions: const [
-          CustomPopMenu(),
-        ],
-      ),
-      body: Form(
-        key: formKey,
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _buildImagePreview(),
-              _buildImageButtons(),
-              _buildDescriptionTextField(),
-              const SizedBox(height: 12),
-              Consumer<StoriesProvider>(
-                  builder: (context, storiesProvider, child) {
+    return PlatformWidget(
+      androidBuilder: _buildAndroid,
+      iosBuilder: _buildIos,
+    );
+  }
+
+  Widget _buildList() {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        body: SingleChildScrollView(
+          child: Container(
+            margin: const EdgeInsets.all(16),
+            child: Form(
+              key: formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _buildImagePreview(),
+                  _buildImageButtons(),
+                  _buildDescriptionTextField(),
+                  const SizedBox(height: 12),
+                  Consumer<StoriesProvider>(
+                      builder: (context, storiesProvider, child) {
                     WidgetsBinding.instance.addPostFrameCallback((_) {
-                      if (storiesProvider.message != "") {
+                      // if (storiesProvider.message != "") {
+                      if (storiesProvider.state == StateActivity.hasData) {
                         if (storiesProvider.addNewStoryResponse.error) {
-                          showMessage(
-                              message: storiesProvider.message,
-                              context: context);
+                          Fluttertoast.showToast(
+                              msg: storiesProvider.message,
+                              toastLength: Toast.LENGTH_SHORT,
+                              gravity: ToastGravity.CENTER,
+                              timeInSecForIosWeb: 1,
+                              backgroundColor: Colors.red,
+                              textColor: Colors.white,
+                              fontSize: 16.0
+                          );
+                          // showMessage(
+                          //     message: storiesProvider.message,
+                          //     context: context);
                           storiesProvider.clear();
                         } else {
-                          showMessage(
-                              message: storiesProvider.message,
-                              context: context);
+                          Fluttertoast.showToast(
+                              msg: storiesProvider.message,
+                              toastLength: Toast.LENGTH_SHORT,
+                              gravity: ToastGravity.CENTER,
+                              timeInSecForIosWeb: 1,
+                              backgroundColor: Colors.red,
+                              textColor: Colors.white,
+                              fontSize: 16.0
+                          );
+                          // showMessage(
+                          //     message: storiesProvider.message,
+                          //     context: context);
                           storiesProvider.clear();
                           context.go('/');
                         }
                       }
                     });
-                return storiesProvider.isLoading
-                    ? loading
-                    : _buildUploadButton();
-              }),
-            ],
+                    return storiesProvider.isLoading
+                        ? loading
+                        : Container(
+                            padding: const EdgeInsets.only(top: 3, left: 3),
+                            child: ElevatedButton(
+                              onPressed: () {
+                                if (formKey.currentState!.validate()) {
+                                  _onUpload();
+                                }
+                              },
+                              style: ElevatedButton.styleFrom(
+                                shape: const StadiumBorder(),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 16),
+                                backgroundColor: Colors.blueAccent,
+                              ),
+                              child: const Text(
+                                "Upload",
+                                style: TextStyle(
+                                    fontSize: 20, color: Colors.white),
+                              ),
+                            ));
+                  }),
+                ],
+              ),
+            ),
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildAndroid(BuildContext context) {
+    return Scaffold(
+      appBar: _buildAppBar(context),
+      body: _buildList(),
+    );
+  }
+
+  Widget _buildIos(BuildContext context) {
+    return CupertinoPageScaffold(
+      navigationBar: const CupertinoNavigationBar(
+        transitionBetweenRoutes: false,
+      ),
+      child: _buildList(),
+    );
+  }
+
+  AppBar _buildAppBar(BuildContext context) {
+    return AppBar(
+      iconTheme: const IconThemeData(color: Colors.white),
+      title: const Text(
+        'Add New Story',
+        style: TextStyle(color: Colors.white),
+      ),
+      backgroundColor: Colors.blueAccent,
+      actions: const [
+        CustomPopMenu(),
+      ],
     );
   }
 
@@ -134,35 +205,20 @@ class _AddNewStoryPageState extends State<AddNewStoryPage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          _buildElevatedButton(
-              "Gallery",
-              _onGalleryView,
-              Colors.purple,
-              const Icon(
-                Icons.image_rounded,
-                color: Colors.white,
-              )),
+          CustomImageButton(
+            label: 'Gallery',
+            onPressed: _onGalleryView,
+            colorButton: Colors.purple,
+            icon: const Icon(Icons.image_rounded, color: Colors.white),
+          ),
           const SizedBox(width: 16),
-          _buildElevatedButton("Camera", _onCameraView, Colors.deepPurple,
-              const Icon(Icons.camera, color: Colors.white)),
+          CustomImageButton(
+            label: 'Camera',
+            onPressed: _onCameraView,
+            colorButton: Colors.deepPurple,
+            icon: const Icon(Icons.camera, color: Colors.white),
+          ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildElevatedButton(
-      String label, VoidCallback onPressed, Color colorButton, Icon icon) {
-    return ElevatedButton.icon(
-      onPressed: onPressed,
-      style: ElevatedButton.styleFrom(
-        shape: const StadiumBorder(),
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-        backgroundColor: colorButton,
-      ),
-      icon: icon,
-      label: Text(
-        label,
-        style: const TextStyle(fontSize: 20, color: Colors.white),
       ),
     );
   }
@@ -178,26 +234,6 @@ class _AddNewStoryPageState extends State<AddNewStoryPage> {
         border: OutlineInputBorder(),
         hintStyle: TextStyle(color: Colors.grey),
         contentPadding: EdgeInsets.all(16.0),
-      ),
-    );
-  }
-
-  Widget _buildUploadButton() {
-    return Padding(
-      padding: const EdgeInsets.only(top: 16.0),
-      child: ElevatedButton(
-        onPressed: () {
-          _onUpload();
-        },
-        style: ElevatedButton.styleFrom(
-          shape: const StadiumBorder(),
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          backgroundColor: Colors.blueAccent,
-        ),
-        child: const Text(
-          "Upload",
-          style: TextStyle(fontSize: 20, color: Colors.white),
-        ),
       ),
     );
   }
@@ -224,8 +260,8 @@ class _AddNewStoryPageState extends State<AddNewStoryPage> {
     );
 
     // if (!storiesProvider.addNewStoryResponse.error) {
-    //   // customImageProvider.setImageFile(null);
-    //   // customImageProvider.setImagePath(null);
+    //   customImageProvider.setImageFile(null);
+    //   customImageProvider.setImagePath(null);
     //   // if (!context.mounted) return;
     //   showMessage(message: storiesProvider.message, context: context);
     //   context.pop(true);

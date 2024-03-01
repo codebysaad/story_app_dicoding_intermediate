@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:story_app/data/preference/preferences_helper.dart';
 
 class PreferenceProvider extends ChangeNotifier {
@@ -12,6 +11,9 @@ class PreferenceProvider extends ChangeNotifier {
 
   String _authToken = '';
   String get authToken => _authToken;
+
+  String _profileName = '';
+  String get profileName => _profileName;
 
   bool _isLoggedIn = false;
   bool get isLoggedIn => _isLoggedIn;
@@ -26,14 +28,15 @@ class PreferenceProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Future<bool> isLoggedIn() async {
-  //   final preferences = await SharedPreferences.getInstance();
-  //   return preferences.getString(tokenKey) != null;
-  // }
+  void getProfileName() async {
+    _profileName = await preferencesHelper.getProfileName;
+    notifyListeners();
+  }
 
-  void saveToken(String value, bool isLoggedIn) {
+  void saveToken(String value, bool isLoggedIn, String name) {
     preferencesHelper.setToken(value);
     preferencesHelper.setLoginState(isLoggedIn);
+    preferencesHelper.setProfileName(name);
     _getToken();
     _getLoginState();
     notifyListeners();

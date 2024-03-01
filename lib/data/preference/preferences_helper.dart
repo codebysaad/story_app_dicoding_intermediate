@@ -7,6 +7,7 @@ class PreferencesHelper {
   static const stateLogin = 'login_state';
   static const stateAuth = 'state_token';
   static const authToken = 'token';
+  static const profileName = 'profile_name';
 
   Future<bool> isLoggedIn() async {
     final preferences = await SharedPreferences.getInstance();
@@ -29,6 +30,11 @@ class PreferencesHelper {
     return preferences.getString(authToken) ?? 'no_auth';
   }
 
+  Future<String> get getProfileName async {
+    final preferences = await SharedPreferences.getInstance();
+    return preferences.getString(profileName) ?? 'no_name';
+  }
+
   void setStateAuth(bool value) async {
     final preferences = await SharedPreferences.getInstance();
     preferences.setBool(stateAuth, value);
@@ -37,6 +43,11 @@ class PreferencesHelper {
   void setToken(String value) async {
     final preferences = await SharedPreferences.getInstance();
     preferences.setString(authToken, value);
+  }
+
+  void setProfileName(String value) async {
+    final preferences = await SharedPreferences.getInstance();
+    preferences.setString(profileName, value);
   }
 
   Future<bool> logout() async {

@@ -113,9 +113,7 @@ class StoriesProvider with ChangeNotifier {
     }
   }
 
-  Future<dynamic> addNewStory(
-      {
-        required List<int> bytes, required String description, required String fileName}) async {
+  Future<dynamic> addNewStory({required List<int> bytes, required String description, required String fileName}) async {
     try {
       _isLoading = true;
       _state = StateActivity.loading;

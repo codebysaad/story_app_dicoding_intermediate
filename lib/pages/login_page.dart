@@ -1,184 +1,235 @@
 import 'dart:developer';
-import 'dart:io';
-
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:story_app/layouts/custom_text_field.dart';
-import 'package:story_app/layouts/password_text_field.dart';
-import 'package:story_app/providers/auth_provider.dart';
-import 'package:story_app/routes/app_route_paths.dart';
-import 'package:story_app/utils/state_activity.dart';
+import 'package:story_app/providers/preference_provider.dart';
 
-import '../layouts/loading_animation.dart';
-import '../layouts/text_message.dart';
+import '../layouts/password_text_field.dart';
+import '../providers/auth_provider.dart';
+import '../routes/app_route_paths.dart';
+import '../utils/platform_widget.dart';
+import '../utils/snack_message.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPage();
+  _LoginPage createState() => _LoginPage();
 }
 
 class _LoginPage extends State<LoginPage> {
-  late TextEditingController emailController;
-  late TextEditingController passwordController;
-
+  late final PreferenceProvider preferenceProv;
+  final TextEditingController _email = TextEditingController();
+  final TextEditingController _password = TextEditingController();
   bool isPasswordVisible = false;
 
   @override
   void initState() {
     super.initState();
-
-    emailController = TextEditingController();
-    passwordController = TextEditingController();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      preferenceProv = Provider.of<PreferenceProvider>(context, listen: false);
+      final token = preferenceProv.authToken;
+      log('Init state: $token');
+    });
   }
 
   @override
   void dispose() {
+    _email.clear();
+    _password.clear();
     super.dispose();
-
-    emailController.dispose();
-    passwordController.dispose();
   }
+
+  final loading = SpinKitFadingCircle(
+    itemBuilder: (BuildContext context, int index) {
+      return DecoratedBox(
+        decoration: BoxDecoration(
+          color: index.isEven ? Colors.red : Colors.green,
+        ),
+      );
+    },
+  );
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<AuthProvider>(
-      builder: (_, provider, __) {
-        return Scaffold(
-          body: SafeArea(
-            child: Center(
-              child: SizedBox(
-                // Page max width
-                width: 400.0,
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      // Header
-                      const Text("Login"),
-                      const SizedBox(height: 16.0),
+    return PlatformWidget(
+      androidBuilder: _buildAndroid,
+      iosBuilder: _buildIos,
+    );
+  }
 
-                      // Inputs
-                      CustomTextField(controller: emailController, hint: "Email",),
+  Widget _buildAndroid(BuildContext context) {
+    return Scaffold(
+      body: _buildList(),
+    );
+  }
+
+  Widget _buildIos(BuildContext context) {
+    return CupertinoPageScaffold(
+      navigationBar: const CupertinoNavigationBar(
+        transitionBetweenRoutes: false,
+      ),
+      child: _buildList(),
+    );
+  }
+
+  Widget _buildList() {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        body: Center(
+          child: SingleChildScrollView(
+            child: Container(
+              margin: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  const Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            "Welcome ",
+                            style: TextStyle(
+                                fontSize: 40,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.blueAccent),
+                          ),
+                          Text(
+                            "Back",
+                            style: TextStyle(
+                                fontSize: 40, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                      Text("Enter your credential to login"),
+                    ],
+                  ),
+                  const SizedBox(height: 12.0),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      CustomTextField(
+                        hint: "Email",
+                        controller: _email,
+                      ),
+                      const SizedBox(height: 10),
                       PasswordTextField(
                         hint: 'Password',
-                        controller: passwordController,
+                        controller: _password,
                         isVisible: isPasswordVisible,
                         onIconPressed: () => setState(() {
                           isPasswordVisible = !isPasswordVisible;
                         }),
-                        onChanged: (value) => doLogin(),
+                        onChanged: (value) => {},
                       ),
-                      const SizedBox(height: 32.0),
-
-                      FilledButton(
-                        onPressed: () => {
-                          doLogin()
-                        },
-                        child: const Text('Login'),
-                      ),
-
-                      // Actions
-                      // Consumer<AuthProvider>(
-                      //   builder: (context, provider, child) {
-                          // if (provider.state == StateActivity.loading) {
-                          //   return const LoadingAnimation();
-                          // }
-
-                      //     return FilledButton(
-                      //       onPressed: () {
-                      //         provider.login(
-                      //             email: emailController.text,
-                      //             password: passwordController.text);
-                      //
-                      //         if(provider.loginResponse.error == false){
-                      //           ScaffoldMessenger.of(context)
-                      //               .showSnackBar(const SnackBar(content: Text("Berhasil Login")));
-                      //         } else {
-                      //           ScaffoldMessenger.of(context)
-                      //               .showSnackBar(const SnackBar(content: Text("Gagal Login")));
-                      //         }
-                      //       },
-                      //       child: const Text('Login'),
-                      //     );
-                      //   },
-                      //   child: const Center(
-                      //       child: LoadingAnimation()),
-                      // ),
-                      const SizedBox(height: 8.0),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text('Need an account?'),
-                          TextButton(
-                            onPressed: () =>
-                                context.go('/${AppRoutePaths.registerRouteName}'),
-                            child: const Text('Register'),
-                          ),
-                        ],
-                      )
+                      const SizedBox(height: 20),
+                      Consumer<AuthProvider>(
+                          builder: (context, authProvider, child) {
+                        return Consumer<PreferenceProvider>(
+                            builder: (context, preference, child) {
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            if (authProvider.message != "") {
+                              if (authProvider.loginResponse.error) {
+                                Fluttertoast.showToast(
+                                    msg: authProvider.message,
+                                    toastLength: Toast.LENGTH_SHORT,
+                                    gravity: ToastGravity.CENTER,
+                                    timeInSecForIosWeb: 1,
+                                    backgroundColor: Colors.red,
+                                    textColor: Colors.white,
+                                    fontSize: 16.0
+                                );
+                                authProvider.clear();
+                              } else {
+                                Fluttertoast.showToast(
+                                    msg: authProvider.message,
+                                    toastLength: Toast.LENGTH_SHORT,
+                                    gravity: ToastGravity.CENTER,
+                                    timeInSecForIosWeb: 1,
+                                    backgroundColor: Colors.red,
+                                    textColor: Colors.white,
+                                    fontSize: 16.0
+                                );
+                                // showMessage(
+                                //     message: authProvider.message,
+                                //     context: context);
+                                authProvider.clear();
+                                String token =
+                                    authProvider.loginResponse.loginData.token;
+                                String name =
+                                    authProvider.loginResponse.loginData.name;
+                                preference.saveToken(token, true, name);
+                                context.go(AppRoutePaths.rootRouteName);
+                              }
+                            }
+                          });
+                          return authProvider.isLoading
+                              ? loading
+                              : ElevatedButton(
+                                  onPressed: () {
+                                    if (_email.text.isEmpty ||
+                                        _password.text.isEmpty) {
+                                      Fluttertoast.showToast(
+                                          msg: "All fields are required",
+                                          toastLength: Toast.LENGTH_SHORT,
+                                          gravity: ToastGravity.CENTER,
+                                          timeInSecForIosWeb: 1,
+                                          backgroundColor: Colors.red,
+                                          textColor: Colors.white,
+                                          fontSize: 16.0
+                                      );
+                                      // showMessage(
+                                      //     message: "All fields are required",
+                                      //     context: context);
+                                    } else {
+                                      authProvider.login(
+                                          email: _email.text.trim(),
+                                          password: _password.text.trim());
+                                    }
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    shape: const StadiumBorder(),
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 16),
+                                    backgroundColor: Colors.blueAccent,
+                                  ),
+                                  child: const Text(
+                                    "Login",
+                                    style: TextStyle(
+                                        fontSize: 20, color: Colors.white),
+                                  ),
+                                );
+                        });
+                      }),
                     ],
                   ),
-                ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text("Don\'t have an account? "),
+                      TextButton(
+                          onPressed: () {
+                            context.go(
+                                '/${AppRoutePaths.loginRouteName}/${AppRoutePaths.registerRouteName}');
+                          },
+                          child: const Text(
+                            "Register",
+                            style: TextStyle(color: Colors.blueAccent),
+                          ))
+                    ],
+                  ),
+                ],
               ),
             ),
           ),
-        );
-      },
+        ),
+      ),
     );
   }
-
-  var doLogin = () {
-    // String email = emailController.text;
-    //     String password = passwordController.text;
-    //   final Future<dynamic> successfulMessage =
-    //   provider.login(email: email, password: password);
-    //
-    //   successfulMessage.then((response) {
-    //     if (response['status']) {
-    //       User user = response['user'];
-    //       Provider.of<UserProvider>(context, listen: false).setUser(user);
-    //       Navigator.pushReplacementNamed(context, '/dashboard');
-    //     } else {
-    //       Flushbar(
-    //         title: "Failed Login",
-    //         message: response['message']['message'].toString(),
-    //         duration: Duration(seconds: 3),
-    //       ).show(context);
-    //     }
-    //   });
-  };
-
-  // Future<void> doLogin() async {
-  //   // final showSnackBar = context.scaffoldMessenger.showSnackBar;
-  //   try {
-  //     String email = emailController.text;
-  //     String password = passwordController.text;
-  //
-  //     final provider = context.read<AuthProvider>();
-  //
-  //     provider.login(email: email, password: password);
-  //
-  //     if(provider.loginResponse.error == false){
-  //       ScaffoldMessenger.of(context)
-  //           .showSnackBar(const SnackBar(content: Text("Berhasil Login")));
-  //     } else {
-  //       ScaffoldMessenger.of(context)
-  //           .showSnackBar(const SnackBar(content: Text("Gagal Login")));
-  //     }
-  //   } on HttpException catch (e) {
-  //     ScaffoldMessenger.of(context)
-  //         .showSnackBar(SnackBar(content: Text(e.toString())));
-  //     // showSnackBar(SnackBar(
-  //     //   content: Text(e.toString()),
-  //     // ));
-  //   } catch (e) {
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //         const SnackBar(content: Text('No internet connection')));
-  //     // showSnackBar(const SnackBar(content: Text('No internet connection')));
-  //   }
-  // }
 }

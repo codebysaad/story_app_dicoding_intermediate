@@ -1,22 +1,24 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:story_app/layouts/custom_text_field.dart';
 import 'package:story_app/layouts/password_text_field.dart';
 import 'package:story_app/providers/auth_provider.dart';
 
-import '../routes/app_route_paths.dart';
+import '../utils/platform_widget.dart';
 import '../utils/snack_message.dart';
 
-class Register3Page extends StatefulWidget {
-  const Register3Page({super.key});
+class RegisterPage extends StatefulWidget {
+  const RegisterPage({super.key});
 
   @override
-  State<Register3Page> createState() => _Register3Page();
+  State<RegisterPage> createState() => _RegisterPage();
 }
 
-class _Register3Page extends State<Register3Page> {
+class _RegisterPage extends State<RegisterPage> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -55,14 +57,35 @@ class _Register3Page extends State<Register3Page> {
 
   @override
   Widget build(BuildContext context) {
+    return PlatformWidget(
+      androidBuilder: _buildAndroid,
+      iosBuilder: _buildIos,
+    );
+  }
+
+  Widget _buildAndroid(BuildContext context) {
+    return Scaffold(
+      body: _buildList(),
+    );
+  }
+
+  Widget _buildIos(BuildContext context) {
+    return CupertinoPageScaffold(
+      navigationBar: const CupertinoNavigationBar(
+        transitionBetweenRoutes: false,
+      ),
+      child: _buildList(),
+    );
+  }
+
+  Widget _buildList() {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        body: SingleChildScrollView(
-          child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 40),
-              height: MediaQuery.of(context).size.height - 50,
-              width: double.infinity,
+        body: Center(
+          child: SingleChildScrollView(
+            child: Container(
+              margin: const EdgeInsets.all(24),
               child: Form(
                 key: formKey,
                 child: Column(
@@ -71,7 +94,6 @@ class _Register3Page extends State<Register3Page> {
                   children: <Widget>[
                     Column(
                       children: <Widget>[
-                        const SizedBox(height: 60.0),
                         const Text(
                           "Register",
                           style: TextStyle(
@@ -84,13 +106,13 @@ class _Register3Page extends State<Register3Page> {
                         ),
                         Text(
                           "Create your account",
-                          style:
-                              TextStyle(fontSize: 15, color: Colors.grey[700]),
+                          style: TextStyle(fontSize: 15, color: Colors.grey[700]),
                         )
                       ],
                     ),
                     Column(
                       children: <Widget>[
+                        const SizedBox(height: 12.0),
                         CustomTextField(
                           controller: _usernameController,
                           hint: 'Username',
@@ -130,8 +152,7 @@ class _Register3Page extends State<Register3Page> {
                           isVisible: isConfirmPasswordVisible,
                           controller: _confirmPasswordController,
                           onIconPressed: () => setState(() {
-                            isConfirmPasswordVisible =
-                                !isConfirmPasswordVisible;
+                            isConfirmPasswordVisible = !isConfirmPasswordVisible;
                           }),
                           onChanged: (value) => setState(() {
                             checkConfirmPassword(value);
@@ -151,47 +172,82 @@ class _Register3Page extends State<Register3Page> {
                         ),
                       ],
                     ),
+                    const SizedBox(height: 20.0),
                     Consumer<AuthProvider>(builder: (context, provider, child) {
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        if (provider.message != "") {
+                          if (provider.loginResponse.error) {
+                            Fluttertoast.showToast(
+                                msg: provider.message,
+                                toastLength: Toast.LENGTH_SHORT,
+                                gravity: ToastGravity.CENTER,
+                                timeInSecForIosWeb: 1,
+                                backgroundColor: Colors.red,
+                                textColor: Colors.white,
+                                fontSize: 16.0
+                            );
+                            // showMessage(
+                            //     message: provider.message, context: context);
+                            provider.clear();
+                          } else {
+                            Fluttertoast.showToast(
+                                msg: provider.message,
+                                toastLength: Toast.LENGTH_SHORT,
+                                gravity: ToastGravity.CENTER,
+                                timeInSecForIosWeb: 1,
+                                backgroundColor: Colors.red,
+                                textColor: Colors.white,
+                                fontSize: 16.0
+                            );
+                            // showMessage(
+                            //     message: provider.message, context: context);
+                            provider.clear();
+                            context.pop(true);
+                          }
+                        }
+                      });
                       return provider.isLoading
                           ? loading
                           : Container(
-                              padding: const EdgeInsets.only(top: 3, left: 3),
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  if (formKey.currentState!.validate()) {
-                                    if (checkMatchingPassword(
-                                        _passwordController.text,
-                                        _confirmPasswordController.text)) {
-                                      provider.register(
-                                          name: _usernameController.text,
-                                          email: _emailController.text,
-                                          password: _passwordController.text);
-                                      showMessage(
-                                          message: provider.message,
-                                          context: context);
-                                      if (!provider.registerResponse.error) {
-                                        // context.go('/${AppRoutePaths.loginRouteName}');
-                                        context.pop(true);
-                                      }
-                                    } else {
-                                      showMessage(
-                                          message: "Password Not Match!",
-                                          context: context);
-                                    }
-                                  }
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  shape: const StadiumBorder(),
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 16),
-                                  backgroundColor: Colors.blueAccent,
-                                ),
-                                child: const Text(
-                                  "Register",
-                                  style: TextStyle(
-                                      fontSize: 20, color: Colors.white),
-                                ),
-                              ));
+                          padding: const EdgeInsets.only(top: 3, left: 3),
+                          child: ElevatedButton(
+                            onPressed: () {
+                              if (formKey.currentState!.validate()) {
+                                if (checkMatchingPassword(
+                                    _passwordController.text,
+                                    _confirmPasswordController.text)) {
+                                  provider.register(
+                                      name: _usernameController.text,
+                                      email: _emailController.text,
+                                      password: _passwordController.text);
+                                } else {
+                                  Fluttertoast.showToast(
+                                      msg: "Password Not Match!",
+                                      toastLength: Toast.LENGTH_SHORT,
+                                      gravity: ToastGravity.CENTER,
+                                      timeInSecForIosWeb: 1,
+                                      backgroundColor: Colors.red,
+                                      textColor: Colors.white,
+                                      fontSize: 16.0
+                                  );
+                                  // showMessage(
+                                  //     message: "Password Not Match!",
+                                  //     context: context);
+                                }
+                              }
+                            },
+                            style: ElevatedButton.styleFrom(
+                              shape: const StadiumBorder(),
+                              padding:
+                              const EdgeInsets.symmetric(vertical: 16),
+                              backgroundColor: Colors.blueAccent,
+                            ),
+                            child: const Text(
+                              "Register",
+                              style: TextStyle(
+                                  fontSize: 20, color: Colors.white),
+                            ),
+                          ));
                     }),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -209,7 +265,9 @@ class _Register3Page extends State<Register3Page> {
                     )
                   ],
                 ),
-              )),
+              ),
+            ),
+          ),
         ),
       ),
     );

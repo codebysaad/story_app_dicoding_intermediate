@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
 import 'package:story_app/data/models/stories_response.dart';
-import 'package:story_app/providers/stories_provider.dart';
 import 'package:story_app/routes/app_route_paths.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
