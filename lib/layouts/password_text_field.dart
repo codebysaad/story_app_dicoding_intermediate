@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class PasswordTextField extends StatelessWidget {
   const PasswordTextField({
     super.key,
-    required this.hint,
+    this.hint,
     this.controller,
     this.isVisible = true,
     this.onIconPressed,
@@ -13,7 +13,7 @@ class PasswordTextField extends StatelessWidget {
 
   final TextEditingController? controller;
   final bool isVisible;
-  final String hint;
+  final String? hint;
   final VoidCallback? onIconPressed;
   final ValueChanged<String>? onChanged;
   final FormFieldValidator<String>? validator;

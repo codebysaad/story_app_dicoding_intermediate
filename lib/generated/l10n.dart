@@ -320,30 +320,30 @@ class S {
     );
   }
 
-  /// `Profil`
+  /// `Profile`
   String get profile {
     return Intl.message(
-      'Profil',
+      'Profile',
       name: 'profile',
       desc: '',
       args: [],
     );
   }
 
-  /// `Pengaturan`
+  /// `Settings`
   String get settings {
     return Intl.message(
-      'Pengaturan',
+      'Settings',
       name: 'settings',
       desc: '',
       args: [],
     );
   }
 
-  /// `Welcome `
+  /// `Welcome Back`
   String get welcomeBack {
     return Intl.message(
-      'Welcome ',
+      'Welcome Back',
       name: 'welcomeBack',
       desc: '',
       args: [],

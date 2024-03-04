@@ -115,7 +115,7 @@
   "@settings": {
     "description": "Pengaturan aplikasi"
   },
-  "welcomeBack": "Selamat Datang ",
+  "welcomeBack": "Selamat Datang Kembali",
   "@welcomeBack": {
     "description": "Selamat Datang Kembali"
   },

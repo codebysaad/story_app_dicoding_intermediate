@@ -38,6 +38,10 @@ class StoriesProvider with ChangeNotifier {
   String _message = '';
   String get message => _message;
 
+  set message(String value) {
+    _message = value;
+  }
+
   void clear() {
     _message = "";
     notifyListeners();

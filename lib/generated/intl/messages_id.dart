@@ -73,7 +73,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "titleApp": MessageLookupByLibrary.simpleMessage("Aplikasi Cerita"),
         "upload": MessageLookupByLibrary.simpleMessage("Unggah"),
         "username": MessageLookupByLibrary.simpleMessage("Nama Pengguna"),
-        "welcomeBack": MessageLookupByLibrary.simpleMessage("Selamat Datang "),
+        "welcomeBack":
+            MessageLookupByLibrary.simpleMessage("Selamat Datang Kembali"),
         "yes": MessageLookupByLibrary.simpleMessage("Ya")
       };
 }

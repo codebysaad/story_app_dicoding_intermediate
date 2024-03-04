@@ -31,6 +31,12 @@ class _AddNewStoryPageState extends State<AddNewStoryPage> {
     super.dispose();
   }
 
+  @override
+  void initState() {
+    super.initState();
+    context.read<StoriesProvider>().message = 'init';
+  }
+
   final loading = SpinKitFadingCircle(
     itemBuilder: (BuildContext context, int index) {
       return DecoratedBox(
@@ -67,38 +73,38 @@ class _AddNewStoryPageState extends State<AddNewStoryPage> {
                   const SizedBox(height: 12),
                   Consumer<StoriesProvider>(
                       builder: (context, storiesProvider, child) {
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      if (storiesProvider.message != "") {
-                        if (!storiesProvider.addNewStoryResponse.error) {
-                          Fluttertoast.showToast(
-                              msg: storiesProvider.message,
-                              toastLength: Toast.LENGTH_SHORT,
-                              gravity: ToastGravity.CENTER,
-                              timeInSecForIosWeb: 1,
-                              backgroundColor: Colors.red,
-                              textColor: Colors.white,
-                              fontSize: 16.0);
-                          storiesProvider.clear();
-                          context.pop();
-                          setState(() {
-                            context.read<StoriesProvider>().getAllStories();
-                          });
-                        } else {
-                          Fluttertoast.showToast(
-                              msg: storiesProvider.message,
-                              toastLength: Toast.LENGTH_SHORT,
-                              gravity: ToastGravity.CENTER,
-                              timeInSecForIosWeb: 1,
-                              backgroundColor: Colors.red,
-                              textColor: Colors.white,
-                              fontSize: 16.0);
-                          storiesProvider.clear();
-                        }
-                      }
-                    });
-                    return storiesProvider.isLoading
-                        ? loading
-                        : Container(
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          if (storiesProvider.message != "") {
+                            if (storiesProvider.addNewStoryResponse.error) {
+                              Fluttertoast.showToast(
+                                  msg: storiesProvider.message,
+                                  toastLength: Toast.LENGTH_SHORT,
+                                  gravity: ToastGravity.CENTER,
+                                  timeInSecForIosWeb: 1,
+                                  backgroundColor: Colors.red,
+                                  textColor: Colors.white,
+                                  fontSize: 16.0);
+                              storiesProvider.clear();
+                            } else {
+                              Fluttertoast.showToast(
+                                  msg: storiesProvider.message,
+                                  toastLength: Toast.LENGTH_SHORT,
+                                  gravity: ToastGravity.CENTER,
+                                  timeInSecForIosWeb: 1,
+                                  backgroundColor: Colors.red,
+                                  textColor: Colors.white,
+                                  fontSize: 16.0);
+                              storiesProvider.clear();
+                              context.pop();
+                              setState(() {
+                                context.read<StoriesProvider>().getAllStories();
+                              });
+                            }
+                          }
+                        });
+                        return storiesProvider.isLoading
+                            ? loading
+                            : Container(
                             padding: const EdgeInsets.only(top: 3, left: 3),
                             child: ElevatedButton(
                               onPressed: () {
@@ -109,7 +115,7 @@ class _AddNewStoryPageState extends State<AddNewStoryPage> {
                               style: ElevatedButton.styleFrom(
                                 shape: const StadiumBorder(),
                                 padding:
-                                    const EdgeInsets.symmetric(vertical: 16),
+                                const EdgeInsets.symmetric(vertical: 16),
                                 backgroundColor: Colors.blueAccent,
                               ),
                               child: Text(
@@ -118,7 +124,7 @@ class _AddNewStoryPageState extends State<AddNewStoryPage> {
                                     fontSize: 20, color: Colors.white),
                               ),
                             ));
-                  }),
+                      }),
                 ],
               ),
             ),
@@ -169,24 +175,24 @@ class _AddNewStoryPageState extends State<AddNewStoryPage> {
       ),
       child: imagePath == null
           ? const Center(
-              child: Icon(
-                Icons.image,
-                size: 80,
-                color: Colors.grey,
-              ),
-            )
+        child: Icon(
+          Icons.image,
+          size: 80,
+          color: Colors.grey,
+        ),
+      )
           : ClipRRect(
-              borderRadius: BorderRadius.circular(8.0),
-              child: kIsWeb
-                  ? Image.network(
-                      imagePath.toString(),
-                      fit: BoxFit.cover,
-                    )
-                  : Image.file(
-                      File(imagePath.toString()),
-                      fit: BoxFit.cover,
-                    ),
-            ),
+        borderRadius: BorderRadius.circular(8.0),
+        child: kIsWeb
+            ? Image.network(
+          imagePath.toString(),
+          fit: BoxFit.cover,
+        )
+            : Image.file(
+          File(imagePath.toString()),
+          fit: BoxFit.cover,
+        ),
+      ),
     );
   }
 

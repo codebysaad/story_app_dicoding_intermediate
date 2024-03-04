@@ -22,7 +22,8 @@ class _RegisterPage extends State<RegisterPage> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
 
   final formKey = GlobalKey<FormState>();
   bool isPasswdLength8Char = false;
@@ -61,9 +62,7 @@ class _RegisterPage extends State<RegisterPage> {
   }
 
   Widget _buildAndroid(BuildContext context) {
-    return Scaffold(
-      body: _buildList(),
-    );
+    return _buildList();
   }
 
   Widget _buildIos(BuildContext context) {
@@ -103,7 +102,8 @@ class _RegisterPage extends State<RegisterPage> {
                         ),
                         Text(
                           AppLocalizations.of(context)!.createAccount,
-                          style: TextStyle(fontSize: 15, color: Colors.grey[700]),
+                          style:
+                              TextStyle(fontSize: 15, color: Colors.grey[700]),
                         )
                       ],
                     ),
@@ -132,13 +132,16 @@ class _RegisterPage extends State<RegisterPage> {
                           }),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return AppLocalizations.of(context)!.errorEmptyPassword;
+                              return AppLocalizations.of(context)!
+                                  .errorEmptyPassword;
                             }
                             if (!isPasswdLength8Char) {
-                              return AppLocalizations.of(context)!.passwordAtLeast8Char;
+                              return AppLocalizations.of(context)!
+                                  .passwordAtLeast8Char;
                             }
                             if (!isPasswdContainCapital) {
-                              return AppLocalizations.of(context)!.passwordCapital;
+                              return AppLocalizations.of(context)!
+                                  .passwordCapital;
                             }
                             return null;
                           },
@@ -149,20 +152,24 @@ class _RegisterPage extends State<RegisterPage> {
                           isVisible: isConfirmPasswordVisible,
                           controller: _confirmPasswordController,
                           onIconPressed: () => setState(() {
-                            isConfirmPasswordVisible = !isConfirmPasswordVisible;
+                            isConfirmPasswordVisible =
+                                !isConfirmPasswordVisible;
                           }),
                           onChanged: (value) => setState(() {
                             checkConfirmPassword(value);
                           }),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return AppLocalizations.of(context)!.errorEmptyPassword;
+                              return AppLocalizations.of(context)!
+                                  .errorEmptyPassword;
                             }
                             if (!isPasswdLength8Char) {
-                              return AppLocalizations.of(context)!.passwordAtLeast8Char;
+                              return AppLocalizations.of(context)!
+                                  .passwordAtLeast8Char;
                             }
                             if (!isPasswdContainCapital) {
-                              return AppLocalizations.of(context)!.passwordCapital;
+                              return AppLocalizations.of(context)!
+                                  .passwordCapital;
                             }
                             return null;
                           },
@@ -173,7 +180,7 @@ class _RegisterPage extends State<RegisterPage> {
                     Consumer<AuthProvider>(builder: (context, provider, child) {
                       WidgetsBinding.instance.addPostFrameCallback((_) {
                         if (provider.message != "") {
-                          if (provider.loginResponse.error) {
+                          if (provider.registerResponse.error) {
                             Fluttertoast.showToast(
                                 msg: provider.message,
                                 toastLength: Toast.LENGTH_SHORT,
@@ -181,8 +188,7 @@ class _RegisterPage extends State<RegisterPage> {
                                 timeInSecForIosWeb: 1,
                                 backgroundColor: Colors.red,
                                 textColor: Colors.white,
-                                fontSize: 16.0
-                            );
+                                fontSize: 16.0);
                             provider.clear();
                           } else {
                             Fluttertoast.showToast(
@@ -192,52 +198,52 @@ class _RegisterPage extends State<RegisterPage> {
                                 timeInSecForIosWeb: 1,
                                 backgroundColor: Colors.red,
                                 textColor: Colors.white,
-                                fontSize: 16.0
-                            );
+                                fontSize: 16.0);
                             provider.clear();
-                            context.pop(true);
+                            context.pop();
                           }
                         }
                       });
                       return provider.isLoading
                           ? loading
                           : Container(
-                          padding: const EdgeInsets.only(top: 3, left: 3),
-                          child: ElevatedButton(
-                            onPressed: () {
-                              if (formKey.currentState!.validate()) {
-                                if (checkMatchingPassword(
-                                    _passwordController.text,
-                                    _confirmPasswordController.text)) {
-                                  provider.register(
-                                      name: _usernameController.text,
-                                      email: _emailController.text,
-                                      password: _passwordController.text);
-                                } else {
-                                  Fluttertoast.showToast(
-                                      msg: AppLocalizations.of(context)!.passwordNotMatch,
-                                      toastLength: Toast.LENGTH_SHORT,
-                                      gravity: ToastGravity.CENTER,
-                                      timeInSecForIosWeb: 1,
-                                      backgroundColor: Colors.red,
-                                      textColor: Colors.white,
-                                      fontSize: 16.0
-                                  );
-                                }
-                              }
-                            },
-                            style: ElevatedButton.styleFrom(
-                              shape: const StadiumBorder(),
-                              padding:
-                              const EdgeInsets.symmetric(vertical: 16),
-                              backgroundColor: Colors.blueAccent,
-                            ),
-                            child: Text(
-                              AppLocalizations.of(context)?.register ?? 'Register',
-                              style: const TextStyle(
-                                  fontSize: 20, color: Colors.white),
-                            ),
-                          ));
+                              padding: const EdgeInsets.only(top: 3, left: 3),
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  if (formKey.currentState!.validate()) {
+                                    if (checkMatchingPassword(
+                                        _passwordController.text,
+                                        _confirmPasswordController.text)) {
+                                      provider.register(
+                                          name: _usernameController.text,
+                                          email: _emailController.text,
+                                          password: _passwordController.text);
+                                    } else {
+                                      Fluttertoast.showToast(
+                                          msg: AppLocalizations.of(context)!
+                                              .passwordNotMatch,
+                                          toastLength: Toast.LENGTH_SHORT,
+                                          gravity: ToastGravity.CENTER,
+                                          timeInSecForIosWeb: 1,
+                                          backgroundColor: Colors.red,
+                                          textColor: Colors.white,
+                                          fontSize: 16.0);
+                                    }
+                                  }
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  shape: const StadiumBorder(),
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 16),
+                                  backgroundColor: Colors.blueAccent,
+                                ),
+                                child: Text(
+                                  AppLocalizations.of(context)?.register ??
+                                      'Register',
+                                  style: const TextStyle(
+                                      fontSize: 20, color: Colors.white),
+                                ),
+                              ));
                     }),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,

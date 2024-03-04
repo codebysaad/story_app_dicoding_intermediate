@@ -26,6 +26,9 @@ class _LoginPage extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool isPasswordVisible = false;
+  final formKey = GlobalKey<FormState>();
+  bool isPasswdLength8Char = false;
+  bool isPasswdContainCapital = false;
 
   @override
   void initState() {
@@ -63,9 +66,7 @@ class _LoginPage extends State<LoginPage> {
   }
 
   Widget _buildAndroid(BuildContext context) {
-    return Scaffold(
-      body: _buildList(),
-    );
+    return _buildList();
   }
 
   Widget _buildIos(BuildContext context) {
@@ -78,150 +79,193 @@ class _LoginPage extends State<LoginPage> {
   }
 
   Widget _buildList() {
+    final size = MediaQuery.of(context).size;
+    final width = size.width;
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
         body: Center(
           child: SingleChildScrollView(
             child: Container(
-              margin: const EdgeInsets.all(24),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            AppLocalizations.of(context)!.welcomeBack,
-                            style: const TextStyle(
-                                fontSize: 40,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.blueAccent),
-                          ),
-                          Text(
-                            AppLocalizations.of(context)!.back,
-                            style: const TextStyle(
-                                fontSize: 40, fontWeight: FontWeight.bold),
-                          ),
-                        ],
-                      ),
-                      Text(AppLocalizations.of(context)!.credentialMessage),
-                    ],
-                  ),
-                  const SizedBox(height: 12.0),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      CustomTextField(
-                        hint: AppLocalizations.of(context)!.email,
-                        controller: _emailController,
-                      ),
-                      const SizedBox(height: 10),
-                      PasswordTextField(
-                        hint: AppLocalizations.of(context)!.password,
-                        controller: _passwordController,
-                        isVisible: isPasswordVisible,
-                        onIconPressed: () => setState(() {
-                          isPasswordVisible = !isPasswordVisible;
-                        }),
-                        onChanged: (value) => {},
-                      ),
-                      const SizedBox(height: 20),
-                      Consumer<AuthProvider>(
-                          builder: (context, authProvider, child) {
-                        return Consumer<PreferenceProvider>(
-                            builder: (context, preference, child) {
-                          WidgetsBinding.instance.addPostFrameCallback((_) {
-                            if (authProvider.message != "") {
-                              if (authProvider.loginResponse.error) {
-                                Fluttertoast.showToast(
-                                    msg: authProvider.message,
-                                    toastLength: Toast.LENGTH_SHORT,
-                                    gravity: ToastGravity.CENTER,
-                                    timeInSecForIosWeb: 1,
-                                    backgroundColor: Colors.red,
-                                    textColor: Colors.white,
-                                    fontSize: 16.0);
-                                authProvider.clear();
-                              } else {
-                                Fluttertoast.showToast(
-                                    msg: authProvider.message,
-                                    toastLength: Toast.LENGTH_SHORT,
-                                    gravity: ToastGravity.CENTER,
-                                    timeInSecForIosWeb: 1,
-                                    backgroundColor: Colors.red,
-                                    textColor: Colors.white,
-                                    fontSize: 16.0);
-                                authProvider.clear();
-                                String token =
-                                    authProvider.loginResponse.loginData.token;
-                                String name =
-                                    authProvider.loginResponse.loginData.name;
-                                preference.saveToken(token, true, name);
-                                context.go(AppRoutePaths.rootRouteName);
-                              }
-                            }
-                          });
-                          return authProvider.isLoading
-                              ? loading
-                              : ElevatedButton(
-                                  onPressed: () {
-                                    if (_emailController.text.isEmpty ||
-                                        _passwordController.text.isEmpty) {
+                width: width * 0.9,
+                margin: const EdgeInsets.all(24),
+                child: SingleChildScrollView(
+                  child: Form(
+                    key: formKey,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Column(
+                          children: [
+                            Text(
+                              AppLocalizations.of(context)?.welcomeBack ??
+                                  'Welcome Back',
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                  fontSize: 40,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.blueAccent,
+                              ),
+                            ),
+                            Text(AppLocalizations.of(context)
+                                    ?.credentialMessage ??
+                                ''),
+                          ],
+                        ),
+                        const SizedBox(height: 12.0),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            CustomTextField(
+                              hint: AppLocalizations.of(context)?.email,
+                              controller: _emailController,
+                            ),
+                            const SizedBox(height: 10),
+                            PasswordTextField(
+                              hint: AppLocalizations.of(context)?.password,
+                              controller: _passwordController,
+                              isVisible: isPasswordVisible,
+                              onIconPressed: () => setState(() {
+                                isPasswordVisible = !isPasswordVisible;
+                              }),
+                              onChanged: (value) => setState(() {
+                                checkPassword(value);
+                              }),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return AppLocalizations.of(context)!
+                                      .errorEmptyPassword;
+                                }
+                                if (!isPasswdLength8Char) {
+                                  return AppLocalizations.of(context)!
+                                      .passwordAtLeast8Char;
+                                }
+                                if (!isPasswdContainCapital) {
+                                  return AppLocalizations.of(context)!
+                                      .passwordCapital;
+                                }
+                                return null;
+                              },
+                            ),
+                            const SizedBox(height: 20),
+                            Consumer<AuthProvider>(
+                                builder: (context, authProvider, child) {
+                              return Consumer<PreferenceProvider>(
+                                  builder: (context, preference, child) {
+                                WidgetsBinding.instance
+                                    .addPostFrameCallback((_) {
+                                  if (authProvider.message != "") {
+                                    if (authProvider.loginResponse.error) {
                                       Fluttertoast.showToast(
-                                          msg: AppLocalizations.of(context)!
-                                              .allFieldRequired,
+                                          msg: authProvider.message,
                                           toastLength: Toast.LENGTH_SHORT,
                                           gravity: ToastGravity.CENTER,
                                           timeInSecForIosWeb: 1,
                                           backgroundColor: Colors.red,
                                           textColor: Colors.white,
                                           fontSize: 16.0);
+                                      authProvider.clear();
                                     } else {
-                                      authProvider.login(
-                                          email: _emailController.text.trim(),
-                                          password: _passwordController.text.trim());
+                                      Fluttertoast.showToast(
+                                          msg: authProvider.message,
+                                          toastLength: Toast.LENGTH_SHORT,
+                                          gravity: ToastGravity.CENTER,
+                                          timeInSecForIosWeb: 1,
+                                          backgroundColor: Colors.red,
+                                          textColor: Colors.white,
+                                          fontSize: 16.0);
+                                      authProvider.clear();
+                                      String token = authProvider
+                                          .loginResponse.loginData.token;
+                                      String name = authProvider
+                                          .loginResponse.loginData.name;
+                                      preference.saveToken(token, true, name);
+                                      context.go(AppRoutePaths.rootRouteName);
                                     }
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    shape: const StadiumBorder(),
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 16),
-                                    backgroundColor: Colors.blueAccent,
-                                  ),
-                                  child: Text(
-                                    AppLocalizations.of(context)?.login ?? 'Login',
-                                    style: const TextStyle(
-                                        fontSize: 20, color: Colors.white),
-                                  ),
-                                );
-                        });
-                      }),
-                    ],
+                                  }
+                                });
+                                return authProvider.isLoading
+                                    ? loading
+                                    : ElevatedButton(
+                                        onPressed: () {
+                                          if (formKey.currentState!
+                                              .validate()) {
+                                            if (_emailController.text.isEmpty ||
+                                                _passwordController
+                                                    .text.isEmpty) {
+                                              Fluttertoast.showToast(
+                                                  msg: AppLocalizations.of(
+                                                          context)!
+                                                      .allFieldRequired,
+                                                  toastLength:
+                                                      Toast.LENGTH_SHORT,
+                                                  gravity: ToastGravity.CENTER,
+                                                  timeInSecForIosWeb: 1,
+                                                  backgroundColor: Colors.red,
+                                                  textColor: Colors.white,
+                                                  fontSize: 16.0);
+                                            } else {
+                                              authProvider.login(
+                                                  email: _emailController.text
+                                                      .trim(),
+                                                  password: _passwordController
+                                                      .text
+                                                      .trim());
+                                            }
+                                          }
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          shape: const StadiumBorder(),
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 16),
+                                          backgroundColor: Colors.blueAccent,
+                                        ),
+                                        child: Text(
+                                          AppLocalizations.of(context)?.login ??
+                                              'Login',
+                                          style: const TextStyle(
+                                              fontSize: 20,
+                                              color: Colors.white),
+                                        ),
+                                      );
+                              });
+                            }),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(AppLocalizations.of(context)?.notHaveAccount ??
+                                ''),
+                            TextButton(
+                                onPressed: () {
+                                  context.go(
+                                      '/${AppRoutePaths.loginRouteName}/${AppRoutePaths.registerRouteName}');
+                                },
+                                child: Text(
+                                  AppLocalizations.of(context)?.register ??
+                                      'Register',
+                                  style:
+                                      const TextStyle(color: Colors.blueAccent),
+                                ))
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(AppLocalizations.of(context)!.notHaveAccount),
-                      TextButton(
-                          onPressed: () {
-                            context.go(
-                                '/${AppRoutePaths.loginRouteName}/${AppRoutePaths.registerRouteName}');
-                          },
-                          child: Text(
-                            AppLocalizations.of(context)!.register,
-                            style: const TextStyle(color: Colors.blueAccent),
-                          ))
-                    ],
-                  ),
-                ],
-              ),
-            ),
+                )),
           ),
         ),
       ),
     );
+  }
+
+  checkPassword(String password) {
+    isPasswdLength8Char = password.length >= 8;
+    isPasswdContainCapital = password.contains(RegExp(r'[A-Z]'));
+  }
+
+  checkMatchingPassword(String password, String confirmPassword) {
+    return password == confirmPassword ? true : false;
   }
 }

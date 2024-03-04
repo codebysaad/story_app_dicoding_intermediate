@@ -64,14 +64,14 @@ class MessageLookup extends MessageLookupByLibrary {
             "Password Mush have Capital Character"),
         "passwordNotMatch":
             MessageLookupByLibrary.simpleMessage("Password Not Match!"),
-        "profile": MessageLookupByLibrary.simpleMessage("Profil"),
+        "profile": MessageLookupByLibrary.simpleMessage("Profile"),
         "refresh": MessageLookupByLibrary.simpleMessage("Refresh"),
         "register": MessageLookupByLibrary.simpleMessage("Register"),
-        "settings": MessageLookupByLibrary.simpleMessage("Pengaturan"),
+        "settings": MessageLookupByLibrary.simpleMessage("Settings"),
         "titleApp": MessageLookupByLibrary.simpleMessage("Story App"),
         "upload": MessageLookupByLibrary.simpleMessage("Upload"),
         "username": MessageLookupByLibrary.simpleMessage("Username"),
-        "welcomeBack": MessageLookupByLibrary.simpleMessage("Welcome "),
+        "welcomeBack": MessageLookupByLibrary.simpleMessage("Welcome Back"),
         "yes": MessageLookupByLibrary.simpleMessage("Yes")
       };
 }

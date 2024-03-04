@@ -25,11 +25,20 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final ScrollController scrollController = ScrollController();
+
   @override
   void initState() {
     super.initState();
-    final storiesProvider = context.read<StoriesProvider>();
-    Future.microtask(() async => await storiesProvider.getAllStories());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<StoriesProvider>(context, listen: false).getAllStories();
+    });
+  }
+
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -47,7 +56,7 @@ class _HomePageState extends State<HomePage> {
                       TextButton(
                         child: Text(AppLocalizations.of(context)!.cancel),
                         onPressed: () {
-                          Navigator.of(context).pop();
+                          context.pop();
                         },
                       ),
                       TextButton(
@@ -135,12 +144,14 @@ class _HomePageState extends State<HomePage> {
               case StateActivity.noData:
                 return TextMessage(
                   image: 'assets/images/empty-data.png',
-                  message: AppLocalizations.of(context)?.emptyData ?? 'Empty Data',
+                  message:
+                      AppLocalizations.of(context)?.emptyData ?? 'Empty Data',
                 );
               case StateActivity.error:
                 return TextMessage(
                   image: 'assets/images/no-internet.png',
-                  message: AppLocalizations.of(context)?.lostConnection ?? 'Lost Connection',
+                  message: AppLocalizations.of(context)?.lostConnection ??
+                      'Lost Connection',
                   titleButton: AppLocalizations.of(context)!.refresh,
                   onPressed: () => provider.getAllStories(),
                 );

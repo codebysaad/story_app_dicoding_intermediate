@@ -23,7 +23,7 @@ class ApiServices {
           'password': password
         },
     );
-    if (response.statusCode == 200) {
+    if (response.statusCode == 201) {
       return GeneralResponse.fromJson(json.decode(response.body));
     } else {
       throw Exception('Failed to load data');

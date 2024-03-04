@@ -89,21 +89,23 @@ class AuthProvider with ChangeNotifier {
       if (registering.error) {
         _isLoading = false;
         _state = StateActivity.noData;
+        _message = registering.message;
         notifyListeners();
-
-        return _message = 'Empty Data';
+        log('Return Error: ${registering.message}');
+        return _registerResponse = registering;
       } else {
         _isLoading = false;
         _state = StateActivity.hasData;
+        _message = registering.message;
         notifyListeners();
-
+        log('Return Success: ${registering.message}');
         return _registerResponse = registering;
       }
     } catch (e) {
       _isLoading = false;
       _state = StateActivity.error;
       notifyListeners();
-
+      log('Return Catch: $e');
       return _message = 'Error --> $e';
     }
   }

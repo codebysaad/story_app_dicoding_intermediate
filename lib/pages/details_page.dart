@@ -32,18 +32,10 @@ class _DetailsPageState extends State<DetailsPage> {
 
   @override
   void initState() {
-    Future.microtask(() async {
-      try {
-        await context.read<StoriesProvider>().getDetailStory(id: widget.id);
-      } on HttpException catch (e) {
-        log('Detail Page: ${e.message}');
-        debugPrint('$e - ${e.message}');
-      } catch (e) {
-        log('Detail Page: $e');
-        debugPrint('$e');
-      }
-    });
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<StoriesProvider>().getDetailStory(id: widget.id);
+    });
   }
 
   @override
