@@ -52,7 +52,7 @@ class AuthProvider with ChangeNotifier {
       notifyListeners();
 
       final authenticating = await apiServices.login(email, password);
-      if (authenticating.error == true) {
+      if (authenticating.error) {
         _isLoading = false;
         _state = StateActivity.noData;
         _message = authenticating.message;
@@ -74,7 +74,7 @@ class AuthProvider with ChangeNotifier {
       _state = StateActivity.error;
       _message = 'Error --> $e';
       notifyListeners();
-      return _loginResponse = LoginResponse(error: true, message: message, loginData: LoginData(userId: "1", name: "XXX", token: "asdadeassd"));
+      return _message;
     }
   }
 
@@ -86,7 +86,7 @@ class AuthProvider with ChangeNotifier {
       notifyListeners();
 
       final registering = await apiServices.register(name, email, password);
-      if (registering.error == true) {
+      if (registering.error) {
         _isLoading = false;
         _state = StateActivity.noData;
         notifyListeners();
@@ -120,28 +120,4 @@ class AuthProvider with ChangeNotifier {
     notifyListeners();
     return !isLoggedIn;
   }
-
-  // Future<bool> logout() async {
-  //   _isLoading = true;
-  //   _state = StateActivity.loading;
-  //   notifyListeners();
-  //
-  //   try {
-  //     // preferenceHelper.setLoginState(false);
-  //     preferenceHelper.logout();
-  //     _state = StateActivity.noData;
-  //     _message = 'Logout Success';
-  //     _isLoading = false;
-  //   } catch (e) {
-  //     _message = 'Error --> $e';
-  //     _isLoading = false;
-  //     _state = StateActivity.error;
-  //     throw Exception('Logout failed: $e');
-  //   }
-  //   _isLoggedIn = await preferenceHelper.isLoggedIn();
-  //   log('Status Logout: $isLoggedIn');
-  //   // _isLoading = false;
-  //   notifyListeners();
-  //   return isLoggedIn;
-  // }
 }

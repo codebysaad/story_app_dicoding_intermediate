@@ -1,10 +1,150 @@
 {
-  "titleApp": "Aplikasi Lokalisasi",
+  "titleApp": "Aplikasi Cerita",
   "@titleApp": {
-    "description": "Deskripsi mengenai variabel titleApp"
+    "description": "Nama aplikasi"
   },
-  "helloWorld": "Halo Dunia!",
-  "@helloWorld": {
-    "description": "Deskripsi variabel helloWorld"
+  "register": "Daftar",
+  "@register": {
+    "description": "Tombol daftar akun"
+  },
+  "login": "Masuk",
+  "@login": {
+    "description": "Tombol masuk akun"
+  },
+  "logout": "Keluar",
+  "@logout": {
+    "description": "Tombol keluar akun"
+  },
+  "logoutMessage": "Apakah kamu ingin keluar akun ini?",
+  "@logoutMessage": {
+    "description": "Konfirmasi logout"
+  },
+  "cancel": "Batal",
+  "@cancel": {
+    "description": "Tombol pembatalan"
+  },
+  "yes": "Ya",
+  "@yes": {
+    "description": "Tombol konfirmasi setuju"
+  },
+  "logoutSuccess": "Keluar akun berhasil",
+  "@logoutSuccess": {
+    "description": "Pesan keluar akun berhasil"
+  },
+  "upload": "Unggah",
+  "@upload": {
+    "description": "Tombol upload cerita"
+  },
+  "addNewStory": "Tambah Cerita Baru",
+  "@addNewStory": {
+    "description": "Tombol tambah cerita baru"
+  },
+  "gallery": "Galeri",
+  "@gallery": {
+    "description": "Tombol ambil gambar dari galeri"
+  },
+  "camera": "Kamera",
+  "@camera": {
+    "description": "Tombol ambil gambar dari kamera"
+  },
+  "description": "Deskripsi",
+  "@description": {
+    "description": "Input deskripsi gambar"
+  },
+  "hintDescription": "Masukkan deskripsi disini",
+  "@hintDescription": {
+    "description": "Kotak isian deskripsi"
+  },
+  "detailStory": "Detil Cerita",
+  "@detailStory": {
+    "description": "Detil cerita"
+  },
+  "loading": "Memuat...",
+  "@loading": {
+    "description": "Memuat data"
+  },
+  "emptyData": "Data Tidak Ditemukan",
+  "@emptyData": {
+    "description": "Tidak dapat menemukan data"
+  },
+  "lostConnection": "Koneksi Terputus",
+  "@lostConnection": {
+    "description": "Koneksi terputus"
+  },
+  "refresh": "Segarkan",
+  "@refresh": {
+    "description": "Tombol refresh halaman"
+  },
+  "back": "Kembali",
+  "@back": {
+    "description": "Tombol kambali"
+  },
+  "loggingOut": "Proses Keluar Akun...",
+  "@loggingOut": {
+    "description": "Sedang keluar akun"
+  },
+  "email": "Email",
+  "@email": {
+    "description": "Kotak input email"
+  },
+  "password": "Kata Sandi",
+  "@password": {
+    "description": "Kotak input kata sandi"
+  },
+  "confirmPassword": "Konfirmasi Kata Sandi",
+  "@confirmPassword": {
+    "description": "Kotak input konfirmasi kata sandi"
+  },
+  "allFieldRequired": "Isi semua kotak isian yang ada",
+  "@allFieldRequired": {
+    "description": "Error kotak isian"
+  },
+  "notHaveAccount": "Tidak Punya Akun?",
+  "@notHaveAccount": {
+    "description": "Tidak punya akun?"
+  },
+  "alreadyAccount": "Sudah Punya Akun?",
+  "@alreadyAccount": {
+    "description": "Sudah punya akun?"
+  },
+  "profile": "Profil",
+  "@profile": {
+    "description": "Profil"
+  },
+  "settings": "Pengaturan",
+  "@settings": {
+    "description": "Pengaturan aplikasi"
+  },
+  "welcomeBack": "Selamat Datang ",
+  "@welcomeBack": {
+    "description": "Selamat Datang Kembali"
+  },
+  "createAccount": "Buat Akun Anda",
+  "@createAccount": {
+    "description": "Buat akun anda"
+  },
+  "username": "Nama Pengguna",
+  "@username": {
+    "description": "Nama Pengguna"
+  },
+  "errorEmptyPassword": "Masukkan Kata Sandi Anda",
+  "@errorEmptyPassword": {
+    "description": "Masukkan kata sandi anda"
+  },
+  "passwordAtLeast8Char": "Kata Sandi Minimal 8 Karakter",
+  "@passwordAtLeast8Char": {
+    "description": "Kata Sandi Minimal 8 Karakter"
+  },
+  "passwordCapital": "Kata Sandi Harus Mengandung Huruf Besar",
+  "@passwordCapital": {
+    "description": "Kata Sandi Harus Mengandung Huruf Besar"
+  },
+  "passwordNotMatch": "Kata Sandi Tidak Cocok",
+  "@passwordNotMatch": {
+    "description": "Kata Sandi Tidak Cocok"
+  },
+  "credentialMessage": "Masukkan kredensial akun anda untuk masuk",
+  "@credentialMessage": {
+    "description": "Masukkan kredensial akun anda untuk masuk"
   }
 }

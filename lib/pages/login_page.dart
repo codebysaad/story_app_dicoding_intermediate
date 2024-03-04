@@ -11,8 +11,8 @@ import 'package:story_app/providers/preference_provider.dart';
 import '../layouts/password_text_field.dart';
 import '../providers/auth_provider.dart';
 import '../routes/app_route_paths.dart';
+import '../utils/common.dart';
 import '../utils/platform_widget.dart';
-import '../utils/snack_message.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -23,8 +23,8 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPage extends State<LoginPage> {
   late final PreferenceProvider preferenceProv;
-  final TextEditingController _email = TextEditingController();
-  final TextEditingController _password = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
   bool isPasswordVisible = false;
 
   @override
@@ -39,8 +39,8 @@ class _LoginPage extends State<LoginPage> {
 
   @override
   void dispose() {
-    _email.clear();
-    _password.clear();
+    _emailController.clear();
+    _passwordController.clear();
     super.dispose();
   }
 
@@ -88,26 +88,26 @@ class _LoginPage extends State<LoginPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  const Column(
+                  Column(
                     children: [
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            "Welcome ",
-                            style: TextStyle(
+                            AppLocalizations.of(context)!.welcomeBack,
+                            style: const TextStyle(
                                 fontSize: 40,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.blueAccent),
                           ),
                           Text(
-                            "Back",
-                            style: TextStyle(
+                            AppLocalizations.of(context)!.back,
+                            style: const TextStyle(
                                 fontSize: 40, fontWeight: FontWeight.bold),
                           ),
                         ],
                       ),
-                      Text("Enter your credential to login"),
+                      Text(AppLocalizations.of(context)!.credentialMessage),
                     ],
                   ),
                   const SizedBox(height: 12.0),
@@ -115,13 +115,13 @@ class _LoginPage extends State<LoginPage> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       CustomTextField(
-                        hint: "Email",
-                        controller: _email,
+                        hint: AppLocalizations.of(context)!.email,
+                        controller: _emailController,
                       ),
                       const SizedBox(height: 10),
                       PasswordTextField(
-                        hint: 'Password',
-                        controller: _password,
+                        hint: AppLocalizations.of(context)!.password,
+                        controller: _passwordController,
                         isVisible: isPasswordVisible,
                         onIconPressed: () => setState(() {
                           isPasswordVisible = !isPasswordVisible;
@@ -143,8 +143,7 @@ class _LoginPage extends State<LoginPage> {
                                     timeInSecForIosWeb: 1,
                                     backgroundColor: Colors.red,
                                     textColor: Colors.white,
-                                    fontSize: 16.0
-                                );
+                                    fontSize: 16.0);
                                 authProvider.clear();
                               } else {
                                 Fluttertoast.showToast(
@@ -154,11 +153,7 @@ class _LoginPage extends State<LoginPage> {
                                     timeInSecForIosWeb: 1,
                                     backgroundColor: Colors.red,
                                     textColor: Colors.white,
-                                    fontSize: 16.0
-                                );
-                                // showMessage(
-                                //     message: authProvider.message,
-                                //     context: context);
+                                    fontSize: 16.0);
                                 authProvider.clear();
                                 String token =
                                     authProvider.loginResponse.loginData.token;
@@ -173,24 +168,21 @@ class _LoginPage extends State<LoginPage> {
                               ? loading
                               : ElevatedButton(
                                   onPressed: () {
-                                    if (_email.text.isEmpty ||
-                                        _password.text.isEmpty) {
+                                    if (_emailController.text.isEmpty ||
+                                        _passwordController.text.isEmpty) {
                                       Fluttertoast.showToast(
-                                          msg: "All fields are required",
+                                          msg: AppLocalizations.of(context)!
+                                              .allFieldRequired,
                                           toastLength: Toast.LENGTH_SHORT,
                                           gravity: ToastGravity.CENTER,
                                           timeInSecForIosWeb: 1,
                                           backgroundColor: Colors.red,
                                           textColor: Colors.white,
-                                          fontSize: 16.0
-                                      );
-                                      // showMessage(
-                                      //     message: "All fields are required",
-                                      //     context: context);
+                                          fontSize: 16.0);
                                     } else {
                                       authProvider.login(
-                                          email: _email.text.trim(),
-                                          password: _password.text.trim());
+                                          email: _emailController.text.trim(),
+                                          password: _passwordController.text.trim());
                                     }
                                   },
                                   style: ElevatedButton.styleFrom(
@@ -199,9 +191,9 @@ class _LoginPage extends State<LoginPage> {
                                         vertical: 16),
                                     backgroundColor: Colors.blueAccent,
                                   ),
-                                  child: const Text(
-                                    "Login",
-                                    style: TextStyle(
+                                  child: Text(
+                                    AppLocalizations.of(context)?.login ?? 'Login',
+                                    style: const TextStyle(
                                         fontSize: 20, color: Colors.white),
                                   ),
                                 );
@@ -212,15 +204,15 @@ class _LoginPage extends State<LoginPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text("Don\'t have an account? "),
+                      Text(AppLocalizations.of(context)!.notHaveAccount),
                       TextButton(
                           onPressed: () {
                             context.go(
                                 '/${AppRoutePaths.loginRouteName}/${AppRoutePaths.registerRouteName}');
                           },
-                          child: const Text(
-                            "Register",
-                            style: TextStyle(color: Colors.blueAccent),
+                          child: Text(
+                            AppLocalizations.of(context)!.register,
+                            style: const TextStyle(color: Colors.blueAccent),
                           ))
                     ],
                   ),

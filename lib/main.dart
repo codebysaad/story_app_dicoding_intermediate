@@ -1,13 +1,11 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:story_app/data/preference/preferences_helper.dart';
 import 'package:story_app/data/rest/api_services.dart';
-import 'package:story_app/generated/l10n.dart';
 import 'package:story_app/pages/add_new_story_page.dart';
 import 'package:story_app/pages/details_page.dart';
 import 'package:story_app/pages/error_page.dart';
@@ -15,13 +13,13 @@ import 'package:story_app/pages/home_page.dart';
 import 'package:story_app/pages/login_page.dart';
 import 'package:story_app/pages/profile_page.dart';
 import 'package:story_app/pages/register_page.dart';
-import 'package:story_app/pages/splash_screen.dart';
 import 'package:story_app/providers/auth_provider.dart';
-import 'package:story_app/providers/custom_image_provider.dart';
+import 'package:story_app/providers/localization_provider.dart';
 import 'package:story_app/providers/preference_provider.dart';
 import 'package:story_app/providers/stories_provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:story_app/routes/app_route_paths.dart';
+import 'package:story_app/utils/common.dart';
 
 void main() => runApp(const MyApp());
 
@@ -60,19 +58,15 @@ class _MyApp extends State<MyApp> {
         ChangeNotifierProvider.value(value: authProvider),
         ChangeNotifierProvider.value(value: storiesProvider),
         ChangeNotifierProvider.value(value: preferenceProvider),
-        ChangeNotifierProvider.value(value: CustomImageProvider(),),
+        ChangeNotifierProvider.value(value: LocalizationProvider(),),
       ],
       child: FutureBuilder<void>(
         future: authProvider.init(),
         builder: (context, snapshot) {
+          final localizationProvider = Provider.of<LocalizationProvider>(context);
           if (snapshot.connectionState == ConnectionState.done) {
             router = GoRouter(
               routes: [
-                GoRoute(
-                  path: '/${AppRoutePaths.splashName}',
-                  name: AppRoutePaths.splashName,
-                  builder: (context, state) => const SplashScreen(),
-                ),
                 GoRoute(
                   path: '/${AppRoutePaths.loginRouteName}',
                   name: AppRoutePaths.loginRouteName,
@@ -117,7 +111,7 @@ class _MyApp extends State<MyApp> {
               ],
               redirect: (context, state) {
                 if (router == null) {
-                  return '/${AppRoutePaths.splashName}';
+                  return '/${AppRoutePaths.loginRouteName}';
                 } else {
                   return null;
                 }
@@ -140,19 +134,12 @@ class _MyApp extends State<MyApp> {
               routeInformationProvider: router?.routeInformationProvider,
               backButtonDispatcher: RootBackButtonDispatcher(),
               debugShowCheckedModeBanner: false,
-              localizationsDelegates: const [
-                AppLocalizationDelegate(),
-                GlobalMaterialLocalizations.delegate,
-                GlobalWidgetsLocalizations.delegate,
-                GlobalCupertinoLocalizations.delegate,
-              ],
-              supportedLocales: const [
-                Locale('id', ''),
-                Locale('en', ''),
-              ],
+              localizationsDelegates: AppLocalizations.localizationsDelegates,
+              supportedLocales: AppLocalizations.supportedLocales,
+              locale: localizationProvider.locale,
             );
           } else {
-            return const SplashScreen(); // Show a loading screen while initializing
+            return const LoginPage(); // Show a loading screen while initializing
           }
         },
       ),

@@ -22,7 +22,56 @@ class MessageLookup extends MessageLookupByLibrary {
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
-        "helloWorld": MessageLookupByLibrary.simpleMessage("Hello World!"),
-        "titleApp": MessageLookupByLibrary.simpleMessage("Localization App")
+        "addNewStory": MessageLookupByLibrary.simpleMessage("Add New Story"),
+        "allFieldRequired":
+            MessageLookupByLibrary.simpleMessage("All fields are required"),
+        "alreadyAccount":
+            MessageLookupByLibrary.simpleMessage("Already have an account?"),
+        "back": MessageLookupByLibrary.simpleMessage("Back"),
+        "camera": MessageLookupByLibrary.simpleMessage("Camera"),
+        "cancel": MessageLookupByLibrary.simpleMessage("Cancel"),
+        "confirmPassword":
+            MessageLookupByLibrary.simpleMessage("Confirm Password"),
+        "createAccount":
+            MessageLookupByLibrary.simpleMessage("Create Your Account"),
+        "credentialMessage": MessageLookupByLibrary.simpleMessage(
+            "Enter your credential to login"),
+        "description": MessageLookupByLibrary.simpleMessage("Description"),
+        "detailStory": MessageLookupByLibrary.simpleMessage("Details Story"),
+        "email": MessageLookupByLibrary.simpleMessage("Email"),
+        "emptyData": MessageLookupByLibrary.simpleMessage("Data Not Found"),
+        "errorEmptyPassword":
+            MessageLookupByLibrary.simpleMessage("Please enter your password"),
+        "gallery": MessageLookupByLibrary.simpleMessage("Gallery"),
+        "hintDescription": MessageLookupByLibrary.simpleMessage(
+            "Enter your story description..."),
+        "loading": MessageLookupByLibrary.simpleMessage("Loading..."),
+        "loggingOut": MessageLookupByLibrary.simpleMessage("Logging Out..."),
+        "login": MessageLookupByLibrary.simpleMessage("Login"),
+        "logout": MessageLookupByLibrary.simpleMessage("Logout"),
+        "logoutMessage": MessageLookupByLibrary.simpleMessage(
+            "Are You Sure to Logout This Account?"),
+        "logoutSuccess":
+            MessageLookupByLibrary.simpleMessage("Logout Successfully"),
+        "lostConnection":
+            MessageLookupByLibrary.simpleMessage("Lost Connection"),
+        "notHaveAccount":
+            MessageLookupByLibrary.simpleMessage("Don\\\'t have an account?"),
+        "password": MessageLookupByLibrary.simpleMessage("Password"),
+        "passwordAtLeast8Char": MessageLookupByLibrary.simpleMessage(
+            "Password Must be at least 8 Character"),
+        "passwordCapital": MessageLookupByLibrary.simpleMessage(
+            "Password Mush have Capital Character"),
+        "passwordNotMatch":
+            MessageLookupByLibrary.simpleMessage("Password Not Match!"),
+        "profile": MessageLookupByLibrary.simpleMessage("Profil"),
+        "refresh": MessageLookupByLibrary.simpleMessage("Refresh"),
+        "register": MessageLookupByLibrary.simpleMessage("Register"),
+        "settings": MessageLookupByLibrary.simpleMessage("Pengaturan"),
+        "titleApp": MessageLookupByLibrary.simpleMessage("Story App"),
+        "upload": MessageLookupByLibrary.simpleMessage("Upload"),
+        "username": MessageLookupByLibrary.simpleMessage("Username"),
+        "welcomeBack": MessageLookupByLibrary.simpleMessage("Welcome "),
+        "yes": MessageLookupByLibrary.simpleMessage("Yes")
       };
 }

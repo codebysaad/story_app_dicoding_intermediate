@@ -9,6 +9,7 @@ import 'package:story_app/providers/stories_provider.dart';
 import '../layouts/custom_pop_menu.dart';
 import '../layouts/loading_animation.dart';
 import '../layouts/text_message.dart';
+import '../utils/common.dart';
 import '../utils/platform_widget.dart';
 import '../utils/state_activity.dart';
 
@@ -56,9 +57,9 @@ class _DetailsPageState extends State<DetailsPage> {
   AppBar _buildAppBar(BuildContext context) {
     return AppBar(
       iconTheme: const IconThemeData(color: Colors.white),
-      title: const Text(
-        'Details Story',
-        style: TextStyle(color: Colors.white),
+      title: Text(
+        AppLocalizations.of(context)!.detailStory,
+        style: const TextStyle(color: Colors.white),
       ),
       backgroundColor: Colors.blueAccent,
       actions: const [
@@ -76,8 +77,8 @@ class _DetailsPageState extends State<DetailsPage> {
             builder: (context, provider, child) {
               switch (provider.state) {
                 case StateActivity.loading:
-                  return const LoadingAnimation(
-                    message: 'Loading...',
+                  return LoadingAnimation(
+                    message: AppLocalizations.of(context)?.loading ?? 'Loading...',
                   );
                 case StateActivity.hasData:
                   String timeString =
@@ -171,9 +172,9 @@ class _DetailsPageState extends State<DetailsPage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
-                                'Description',
-                                style: TextStyle(
+                              Text(
+                                AppLocalizations.of(context)?.description ?? 'Description',
+                                style: const TextStyle(
                                     fontSize: 16, fontWeight: FontWeight.bold),
                               ),
                               const SizedBox(
@@ -181,9 +182,6 @@ class _DetailsPageState extends State<DetailsPage> {
                               ),
                               Text(
                                 provider.detailsStoryResponse.story.description,
-                                // style: body4.copyWith(
-                                //   color: const Color(0xffBDBDBD),
-                                // ),
                               )
                             ],
                           ),
@@ -192,15 +190,15 @@ class _DetailsPageState extends State<DetailsPage> {
                     ),
                   );
                 case StateActivity.noData:
-                  return const TextMessage(
+                  return TextMessage(
                     image: 'assets/images/empty-data.png',
-                    message: 'Empty Data',
+                    message: AppLocalizations.of(context)?.emptyData ?? 'Empty Data',
                   );
                 case StateActivity.error:
                   return TextMessage(
                     image: 'assets/images/no-internet.png',
-                    message: 'Lost Connection',
-                    titleButton: 'Refresh',
+                    message: AppLocalizations.of(context)?.lostConnection ?? 'Lost Connection',
+                    titleButton: AppLocalizations.of(context)!.refresh,
                     onPressed: () {
                       provider.getDetailStory(id: widget.id);
                       log('Id Story: ${widget.id}');

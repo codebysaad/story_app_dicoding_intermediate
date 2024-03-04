@@ -1,17 +1,22 @@
 import 'dart:developer';
+import 'dart:typed_data';
 
+import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:story_app/data/models/details_story_response.dart';
 import 'package:story_app/data/models/general_response.dart';
 import 'package:story_app/data/models/stories_response.dart';
 import 'package:story_app/providers/preference_provider.dart';
 import 'package:story_app/utils/state_activity.dart';
+import 'package:image/image.dart' as img;
 
 import '../data/rest/api_services.dart';
 
 class StoriesProvider with ChangeNotifier {
   final ApiServices apiServices;
   final PreferenceProvider preferenceProvider;
+  String? imagePath;
+  XFile? imageFile;
 
   StoriesProvider({required this.apiServices, required this.preferenceProvider});
 
@@ -30,19 +35,53 @@ class StoriesProvider with ChangeNotifier {
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
+  String _message = '';
+  String get message => _message;
+
   void clear() {
     _message = "";
     notifyListeners();
   }
 
-  String _message = '';
-  String get message => _message;
+  void setImagePath(String? value) {
+    imagePath = value;
+    notifyListeners();
+  }
+
+  void setImageFile(XFile? value) {
+    imageFile = value;
+    notifyListeners();
+  }
+
+  List<int> compressImage(List<int> bytes) {
+    _isLoading = true;
+    notifyListeners();
+    int imageLength = bytes.length;
+    if (imageLength < 1000000) return bytes;
+
+    final img.Image image = img.decodeImage(Uint8List.fromList(bytes))!;
+    int compressQuality = 100;
+    int length = imageLength;
+    List<int> newByte = <int>[];
+
+    do {
+      compressQuality -= 1000;
+
+      newByte = img.encodeJpg(
+        image,
+        quality: compressQuality,
+      );
+
+      length = newByte.length;
+    } while (length > 1000000);
+    return newByte;
+  }
 
   Future<dynamic> getAllStories() async {
+    _isLoading = true;
+    _state = StateActivity.loading;
+    notifyListeners();
     try {
-      _isLoading = true;
-      _state = StateActivity.loading;
-      notifyListeners();
       final token = preferenceProvider.authToken;
 
       final responses = await apiServices.getAllStories(token);
@@ -50,25 +89,25 @@ class StoriesProvider with ChangeNotifier {
       if (responses.error == true) {
         _isLoading = false;
         _state = StateActivity.noData;
+        notifyListeners();
         _message = responses.message;
         log(message);
-        notifyListeners();
 
         return _storiesResponse = responses;
       } else {
         _isLoading = false;
         _state = StateActivity.hasData;
+        notifyListeners();
         _message = responses.message;
         log(responses.listStory[0].name.toString());
-        notifyListeners();
 
         return _storiesResponse = responses;
       }
     } catch (e) {
       _isLoading = false;
       _state = StateActivity.error;
-      _message = 'Error --> $e';
       notifyListeners();
+      _message = 'Error --> $e';
       return _message;
     }
   }
@@ -113,21 +152,25 @@ class StoriesProvider with ChangeNotifier {
     }
   }
 
-  Future<dynamic> addNewStory({required List<int> bytes, required String description, required String fileName}) async {
+  Future<dynamic> addNewStory({required String description}) async {
+    _isLoading = true;
+    _state = StateActivity.loading;
+    notifyListeners();
     try {
-      _isLoading = true;
-      _state = StateActivity.loading;
-      notifyListeners();
-
       final token = preferenceProvider.authToken;
 
-      final addingStory = await apiServices.addNewStory(token, bytes, description, fileName);
+      final fileName = imageFile!.name;
+      final bytes = await imageFile!.readAsBytes();
+      final newBytes = compressImage(bytes);
 
-      if (addingStory.error == true) {
+      final addingStory = await apiServices.addNewStory(token, newBytes, description, fileName);
+      log('Result: ${addingStory.message}');
+
+      if (addingStory.error) {
         _isLoading = false;
         _state = StateActivity.noData;
         _message = addingStory.message;
-        log(message);
+        log('OnFail: $message');
         notifyListeners();
 
         return _addNewStoryResponse = addingStory;
@@ -135,7 +178,9 @@ class StoriesProvider with ChangeNotifier {
         _isLoading = false;
         _state = StateActivity.hasData;
         _message = addingStory.message;
-        log(addingStory.message.toString());
+        setImageFile(null);
+        setImagePath(null);
+        log('OnSuccess: ${addingStory.message.toString()}');
         notifyListeners();
 
         return _addNewStoryResponse = addingStory;
@@ -144,6 +189,7 @@ class StoriesProvider with ChangeNotifier {
       _isLoading = false;
       _state = StateActivity.error;
       _message = 'Error --> $e';
+      log(_message);
       notifyListeners();
       return _message;
     }

@@ -106,7 +106,7 @@ class ApiServices {
       final Uint8List responseList = await streamedResponse.stream.toBytes();
       final String responseData = String.fromCharCodes(responseList);
 
-      if (statusCode == 200) {
+      if (statusCode == 201) {
         return GeneralResponse.fromJson(json.decode(responseData));
       } else {
         throw Exception('Failed to load data');

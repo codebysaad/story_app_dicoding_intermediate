@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:story_app/providers/preference_provider.dart';
 
 import '../layouts/custom_pop_menu.dart';
+import '../utils/common.dart';
 import '../utils/platform_widget.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -48,9 +49,9 @@ class _ProfilePage extends State<ProfilePage> {
   AppBar _buildAppBar(BuildContext context) {
     return AppBar(
       iconTheme: const IconThemeData(color: Colors.white),
-      title: const Text(
-        'Profile Account',
-        style: TextStyle(color: Colors.white),
+      title: Text(
+        AppLocalizations.of(context)!.profile,
+        style: const TextStyle(color: Colors.white),
       ),
       backgroundColor: Colors.blueAccent,
       actions: const [

@@ -8,19 +8,16 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:story_app/layouts/custom_image_button.dart';
-import 'package:story_app/providers/custom_image_provider.dart';
 import 'package:story_app/providers/stories_provider.dart';
-import 'package:story_app/utils/state_activity.dart';
 import '../layouts/custom_pop_menu.dart';
-import '../layouts/loading_animation.dart';
+import '../utils/common.dart';
 import '../utils/platform_widget.dart';
-import '../utils/snack_message.dart';
 
 class AddNewStoryPage extends StatefulWidget {
   const AddNewStoryPage({super.key});
 
   @override
-  State<AddNewStoryPage> createState() => _AddNewStoryPageState();
+  _AddNewStoryPageState createState() => _AddNewStoryPageState();
 }
 
 class _AddNewStoryPageState extends State<AddNewStoryPage> {
@@ -71,9 +68,8 @@ class _AddNewStoryPageState extends State<AddNewStoryPage> {
                   Consumer<StoriesProvider>(
                       builder: (context, storiesProvider, child) {
                     WidgetsBinding.instance.addPostFrameCallback((_) {
-                      // if (storiesProvider.message != "") {
-                      if (storiesProvider.state == StateActivity.hasData) {
-                        if (storiesProvider.addNewStoryResponse.error) {
+                      if (storiesProvider.message != "") {
+                        if (!storiesProvider.addNewStoryResponse.error) {
                           Fluttertoast.showToast(
                               msg: storiesProvider.message,
                               toastLength: Toast.LENGTH_SHORT,
@@ -81,12 +77,12 @@ class _AddNewStoryPageState extends State<AddNewStoryPage> {
                               timeInSecForIosWeb: 1,
                               backgroundColor: Colors.red,
                               textColor: Colors.white,
-                              fontSize: 16.0
-                          );
-                          // showMessage(
-                          //     message: storiesProvider.message,
-                          //     context: context);
+                              fontSize: 16.0);
                           storiesProvider.clear();
+                          context.pop();
+                          setState(() {
+                            context.read<StoriesProvider>().getAllStories();
+                          });
                         } else {
                           Fluttertoast.showToast(
                               msg: storiesProvider.message,
@@ -95,13 +91,8 @@ class _AddNewStoryPageState extends State<AddNewStoryPage> {
                               timeInSecForIosWeb: 1,
                               backgroundColor: Colors.red,
                               textColor: Colors.white,
-                              fontSize: 16.0
-                          );
-                          // showMessage(
-                          //     message: storiesProvider.message,
-                          //     context: context);
+                              fontSize: 16.0);
                           storiesProvider.clear();
-                          context.go('/');
                         }
                       }
                     });
@@ -112,7 +103,7 @@ class _AddNewStoryPageState extends State<AddNewStoryPage> {
                             child: ElevatedButton(
                               onPressed: () {
                                 if (formKey.currentState!.validate()) {
-                                  _onUpload();
+                                  _onUpload(storiesProvider);
                                 }
                               },
                               style: ElevatedButton.styleFrom(
@@ -121,9 +112,9 @@ class _AddNewStoryPageState extends State<AddNewStoryPage> {
                                     const EdgeInsets.symmetric(vertical: 16),
                                 backgroundColor: Colors.blueAccent,
                               ),
-                              child: const Text(
-                                "Upload",
-                                style: TextStyle(
+                              child: Text(
+                                AppLocalizations.of(context)?.upload ?? 'Upload',
+                                style: const TextStyle(
                                     fontSize: 20, color: Colors.white),
                               ),
                             ));
@@ -156,9 +147,9 @@ class _AddNewStoryPageState extends State<AddNewStoryPage> {
   AppBar _buildAppBar(BuildContext context) {
     return AppBar(
       iconTheme: const IconThemeData(color: Colors.white),
-      title: const Text(
-        'Add New Story',
-        style: TextStyle(color: Colors.white),
+      title: Text(
+        AppLocalizations.of(context)!.addNewStory,
+        style: const TextStyle(color: Colors.white),
       ),
       backgroundColor: Colors.blueAccent,
       actions: const [
@@ -168,7 +159,7 @@ class _AddNewStoryPageState extends State<AddNewStoryPage> {
   }
 
   Widget _buildImagePreview() {
-    final imagePath = context.watch<CustomImageProvider>().imagePath;
+    final imagePath = context.watch<StoriesProvider>().imagePath;
 
     return Container(
       height: 200,
@@ -206,14 +197,14 @@ class _AddNewStoryPageState extends State<AddNewStoryPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           CustomImageButton(
-            label: 'Gallery',
+            label: AppLocalizations.of(context)!.gallery,
             onPressed: _onGalleryView,
             colorButton: Colors.purple,
             icon: const Icon(Icons.image_rounded, color: Colors.white),
           ),
           const SizedBox(width: 16),
           CustomImageButton(
-            label: 'Camera',
+            label: AppLocalizations.of(context)!.camera,
             onPressed: _onCameraView,
             colorButton: Colors.deepPurple,
             icon: const Icon(Icons.camera, color: Colors.white),
@@ -228,50 +219,26 @@ class _AddNewStoryPageState extends State<AddNewStoryPage> {
       controller: descriptionController,
       keyboardType: TextInputType.multiline,
       maxLines: 6,
-      decoration: const InputDecoration(
-        hintText: 'Enter your story description...',
-        labelText: 'Description',
-        border: OutlineInputBorder(),
-        hintStyle: TextStyle(color: Colors.grey),
-        contentPadding: EdgeInsets.all(16.0),
+      decoration: InputDecoration(
+        hintText: AppLocalizations.of(context)!.hintDescription,
+        labelText: AppLocalizations.of(context)!.description,
+        border: const OutlineInputBorder(),
+        hintStyle: const TextStyle(color: Colors.grey),
+        contentPadding: const EdgeInsets.all(16.0),
       ),
     );
   }
 
-  _onUpload() async {
-    final storiesProvider = context.read<StoriesProvider>();
-
-    final customImageProvider = context.read<CustomImageProvider>();
-    final imagePath = customImageProvider.imagePath;
-    final imageFile = customImageProvider.imageFile;
-
-    if (imagePath == null || imageFile == null) return;
-
-    final fileName = imageFile.name;
-    final bytes = await imageFile.readAsBytes();
-    final newBytes = await customImageProvider.compressImage(bytes);
-
+  _onUpload(StoriesProvider storiesProvider) async {
     await storiesProvider.addNewStory(
-      bytes: newBytes,
       description: descriptionController.text.isNotEmpty
           ? descriptionController.text
           : 'No Description',
-      fileName: fileName,
     );
-
-    // if (!storiesProvider.addNewStoryResponse.error) {
-    //   customImageProvider.setImageFile(null);
-    //   customImageProvider.setImagePath(null);
-    //   // if (!context.mounted) return;
-    //   showMessage(message: storiesProvider.message, context: context);
-    //   context.pop(true);
-    // } else {
-    //   showMessage(message: storiesProvider.message, context: context);
-    // }
   }
 
   _onGalleryView() async {
-    final provider = context.read<CustomImageProvider>();
+    final provider = context.read<StoriesProvider>();
 
     final isMacOS = defaultTargetPlatform == TargetPlatform.macOS;
     final isLinux = defaultTargetPlatform == TargetPlatform.linux;
@@ -290,7 +257,7 @@ class _AddNewStoryPageState extends State<AddNewStoryPage> {
   }
 
   _onCameraView() async {
-    final provider = context.read<CustomImageProvider>();
+    final provider = context.read<StoriesProvider>();
 
     final ImagePicker picker = ImagePicker();
 

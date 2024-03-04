@@ -1,10 +1,10 @@
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:story_app/layouts/icon_flag_locale.dart';
 import 'package:story_app/layouts/story_item.dart';
 import 'package:story_app/providers/auth_provider.dart';
 import 'package:story_app/providers/stories_provider.dart';
@@ -14,6 +14,7 @@ import 'package:story_app/utils/state_activity.dart';
 import '../layouts/custom_pop_menu.dart';
 import '../layouts/loading_animation.dart';
 import '../layouts/text_message.dart';
+import '../utils/common.dart';
 import '../utils/platform_widget.dart';
 
 class HomePage extends StatefulWidget {
@@ -24,34 +25,45 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final ScrollController scrollController = ScrollController();
-
   @override
   void initState() {
     super.initState();
-
-    final authProvider = context.read<AuthProvider>();
     final storiesProvider = context.read<StoriesProvider>();
-    storiesProvider.getAllStories();
-
-    log('Status Logout: ${authProvider.isLoggedIn}');
-
-    // Future.microtask(() async {
-    //   try {
-    // await storiesProvider.getAllStories();
-    //   } on HttpException catch (e) {
-    //     debugPrint('$e - ${e.message}');
-    //   } catch (e) {
-    //     debugPrint('$e');
-    //   }
-    // });
+    Future.microtask(() async => await storiesProvider.getAllStories());
   }
 
   @override
   Widget build(BuildContext context) {
-    return PlatformWidget(
-      androidBuilder: _buildAndroid,
-      iosBuilder: _buildIos,
+    return PopScope(
+      canPop: true,
+      onPopInvoked: (bool didPop) {
+        if (didPop) {
+          showDialog(
+              context: context,
+              builder: (ctx) => AlertDialog(
+                    title: const Text('Exit'),
+                    content: const Text('Are You Sure to Leave?'),
+                    actions: <Widget>[
+                      TextButton(
+                        child: Text(AppLocalizations.of(context)!.cancel),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                      TextButton(
+                        child: Text(AppLocalizations.of(context)!.yes),
+                        onPressed: () async {
+                          exit(0);
+                        },
+                      ),
+                    ],
+                  ));
+        }
+      },
+      child: PlatformWidget(
+        androidBuilder: _buildAndroid,
+        iosBuilder: _buildIos,
+      ),
     );
   }
 
@@ -82,12 +94,13 @@ class _HomePageState extends State<HomePage> {
   AppBar _buildAppBar(BuildContext context) {
     return AppBar(
       iconTheme: const IconThemeData(color: Colors.white),
-      title: const Text(
-        'Story App',
-        style: TextStyle(color: Colors.white),
+      title: Text(
+        AppLocalizations.of(context)!.titleApp,
+        style: const TextStyle(color: Colors.white),
       ),
       backgroundColor: Colors.blueAccent,
       actions: const [
+        IconFlagLocale(),
         CustomPopMenu(),
       ],
     );
@@ -96,13 +109,17 @@ class _HomePageState extends State<HomePage> {
   Widget _buildList() {
     return Consumer<AuthProvider>(builder: (_, authProvider, __) {
       if (authProvider.isLoading) {
-        return const LoadingAnimation(message: 'Logging Out...',);
+        return LoadingAnimation(
+          message: AppLocalizations.of(context)?.loggingOut ?? 'Logging Out...',
+        );
       } else {
         return Consumer<StoriesProvider>(
           builder: (_, provider, __) {
             switch (provider.state) {
               case StateActivity.loading:
-                return const LoadingAnimation(message: 'Loading...',);
+                return LoadingAnimation(
+                  message: AppLocalizations.of(context)!.loading,
+                );
               case StateActivity.hasData:
                 return ListView.builder(
                   padding: const EdgeInsets.symmetric(
@@ -116,15 +133,15 @@ class _HomePageState extends State<HomePage> {
                   },
                 );
               case StateActivity.noData:
-                return const TextMessage(
+                return TextMessage(
                   image: 'assets/images/empty-data.png',
-                  message: 'Empty Data',
+                  message: AppLocalizations.of(context)?.emptyData ?? 'Empty Data',
                 );
               case StateActivity.error:
                 return TextMessage(
                   image: 'assets/images/no-internet.png',
-                  message: 'Lost Connection',
-                  titleButton: 'Refresh',
+                  message: AppLocalizations.of(context)?.lostConnection ?? 'Lost Connection',
+                  titleButton: AppLocalizations.of(context)!.refresh,
                   onPressed: () => provider.getAllStories(),
                 );
               default:

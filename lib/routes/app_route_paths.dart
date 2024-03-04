@@ -1,5 +1,4 @@
 abstract class AppRoutePaths {
-  static const String splashName = 'splash';
   static const String rootRouteName = '/';
   static const String loginRouteName = 'login';
   static const String registerRouteName = 'register';

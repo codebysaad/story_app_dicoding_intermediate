@@ -8,8 +8,8 @@ import 'package:story_app/layouts/custom_text_field.dart';
 import 'package:story_app/layouts/password_text_field.dart';
 import 'package:story_app/providers/auth_provider.dart';
 
+import '../utils/common.dart';
 import '../utils/platform_widget.dart';
-import '../utils/snack_message.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -22,12 +22,9 @@ class _RegisterPage extends State<RegisterPage> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController =
-      TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
 
   final formKey = GlobalKey<FormState>();
-  bool isObsecured = true;
-
   bool isPasswdLength8Char = false;
   bool isPasswdContainCapital = false;
   bool isConfirmPasswdLength8Char = false;
@@ -94,9 +91,9 @@ class _RegisterPage extends State<RegisterPage> {
                   children: <Widget>[
                     Column(
                       children: <Widget>[
-                        const Text(
-                          "Register",
-                          style: TextStyle(
+                        Text(
+                          AppLocalizations.of(context)!.register,
+                          style: const TextStyle(
                             fontSize: 30,
                             fontWeight: FontWeight.bold,
                           ),
@@ -105,7 +102,7 @@ class _RegisterPage extends State<RegisterPage> {
                           height: 20,
                         ),
                         Text(
-                          "Create your account",
+                          AppLocalizations.of(context)!.createAccount,
                           style: TextStyle(fontSize: 15, color: Colors.grey[700]),
                         )
                       ],
@@ -115,16 +112,16 @@ class _RegisterPage extends State<RegisterPage> {
                         const SizedBox(height: 12.0),
                         CustomTextField(
                           controller: _usernameController,
-                          hint: 'Username',
+                          hint: AppLocalizations.of(context)!.username,
                         ),
                         const SizedBox(height: 20),
                         CustomTextField(
-                          hint: 'Email',
+                          hint: AppLocalizations.of(context)!.email,
                           controller: _emailController,
                         ),
                         const SizedBox(height: 20),
                         PasswordTextField(
-                          hint: 'Password',
+                          hint: AppLocalizations.of(context)!.password,
                           isVisible: isPasswordVisible,
                           controller: _passwordController,
                           onIconPressed: () => setState(() {
@@ -135,20 +132,20 @@ class _RegisterPage extends State<RegisterPage> {
                           }),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Please enter your password.';
+                              return AppLocalizations.of(context)!.errorEmptyPassword;
                             }
                             if (!isPasswdLength8Char) {
-                              return "Password Must be at least 8 Character";
+                              return AppLocalizations.of(context)!.passwordAtLeast8Char;
                             }
                             if (!isPasswdContainCapital) {
-                              return "Password Mush have Capital Character";
+                              return AppLocalizations.of(context)!.passwordCapital;
                             }
                             return null;
                           },
                         ),
                         const SizedBox(height: 20),
                         PasswordTextField(
-                          hint: 'Confirm Password',
+                          hint: AppLocalizations.of(context)!.confirmPassword,
                           isVisible: isConfirmPasswordVisible,
                           controller: _confirmPasswordController,
                           onIconPressed: () => setState(() {
@@ -159,13 +156,13 @@ class _RegisterPage extends State<RegisterPage> {
                           }),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Please enter your password.';
+                              return AppLocalizations.of(context)!.errorEmptyPassword;
                             }
-                            if (!isConfirmPasswdLength8Char) {
-                              return "Password Must be at least 8 Character";
+                            if (!isPasswdLength8Char) {
+                              return AppLocalizations.of(context)!.passwordAtLeast8Char;
                             }
-                            if (!isConfirmPasswdContainCapital) {
-                              return "Password Mush have Capital Character";
+                            if (!isPasswdContainCapital) {
+                              return AppLocalizations.of(context)!.passwordCapital;
                             }
                             return null;
                           },
@@ -186,8 +183,6 @@ class _RegisterPage extends State<RegisterPage> {
                                 textColor: Colors.white,
                                 fontSize: 16.0
                             );
-                            // showMessage(
-                            //     message: provider.message, context: context);
                             provider.clear();
                           } else {
                             Fluttertoast.showToast(
@@ -199,8 +194,6 @@ class _RegisterPage extends State<RegisterPage> {
                                 textColor: Colors.white,
                                 fontSize: 16.0
                             );
-                            // showMessage(
-                            //     message: provider.message, context: context);
                             provider.clear();
                             context.pop(true);
                           }
@@ -222,7 +215,7 @@ class _RegisterPage extends State<RegisterPage> {
                                       password: _passwordController.text);
                                 } else {
                                   Fluttertoast.showToast(
-                                      msg: "Password Not Match!",
+                                      msg: AppLocalizations.of(context)!.passwordNotMatch,
                                       toastLength: Toast.LENGTH_SHORT,
                                       gravity: ToastGravity.CENTER,
                                       timeInSecForIosWeb: 1,
@@ -230,9 +223,6 @@ class _RegisterPage extends State<RegisterPage> {
                                       textColor: Colors.white,
                                       fontSize: 16.0
                                   );
-                                  // showMessage(
-                                  //     message: "Password Not Match!",
-                                  //     context: context);
                                 }
                               }
                             },
@@ -242,9 +232,9 @@ class _RegisterPage extends State<RegisterPage> {
                               const EdgeInsets.symmetric(vertical: 16),
                               backgroundColor: Colors.blueAccent,
                             ),
-                            child: const Text(
-                              "Register",
-                              style: TextStyle(
+                            child: Text(
+                              AppLocalizations.of(context)?.register ?? 'Register',
+                              style: const TextStyle(
                                   fontSize: 20, color: Colors.white),
                             ),
                           ));
@@ -252,14 +242,14 @@ class _RegisterPage extends State<RegisterPage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
-                        const Text("Already have an account?"),
+                        Text(AppLocalizations.of(context)!.alreadyAccount),
                         TextButton(
                             onPressed: () {
                               context.pop();
                             },
-                            child: const Text(
-                              "Login",
-                              style: TextStyle(color: Colors.blueAccent),
+                            child: Text(
+                              AppLocalizations.of(context)!.login,
+                              style: const TextStyle(color: Colors.blueAccent),
                             ))
                       ],
                     )

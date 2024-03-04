@@ -22,7 +22,58 @@ class MessageLookup extends MessageLookupByLibrary {
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
-        "helloWorld": MessageLookupByLibrary.simpleMessage("Halo Dunia!"),
-        "titleApp": MessageLookupByLibrary.simpleMessage("Aplikasi Lokalisasi")
+        "addNewStory":
+            MessageLookupByLibrary.simpleMessage("Tambah Cerita Baru"),
+        "allFieldRequired": MessageLookupByLibrary.simpleMessage(
+            "Isi semua kotak isian yang ada"),
+        "alreadyAccount":
+            MessageLookupByLibrary.simpleMessage("Sudah Punya Akun?"),
+        "back": MessageLookupByLibrary.simpleMessage("Kembali"),
+        "camera": MessageLookupByLibrary.simpleMessage("Kamera"),
+        "cancel": MessageLookupByLibrary.simpleMessage("Batal"),
+        "confirmPassword":
+            MessageLookupByLibrary.simpleMessage("Konfirmasi Kata Sandi"),
+        "createAccount": MessageLookupByLibrary.simpleMessage("Buat Akun Anda"),
+        "credentialMessage": MessageLookupByLibrary.simpleMessage(
+            "Masukkan kredensial akun anda untuk masuk"),
+        "description": MessageLookupByLibrary.simpleMessage("Deskripsi"),
+        "detailStory": MessageLookupByLibrary.simpleMessage("Detil Cerita"),
+        "email": MessageLookupByLibrary.simpleMessage("Email"),
+        "emptyData":
+            MessageLookupByLibrary.simpleMessage("Data Tidak Ditemukan"),
+        "errorEmptyPassword":
+            MessageLookupByLibrary.simpleMessage("Masukkan Kata Sandi Anda"),
+        "gallery": MessageLookupByLibrary.simpleMessage("Galeri"),
+        "hintDescription":
+            MessageLookupByLibrary.simpleMessage("Masukkan deskripsi disini"),
+        "loading": MessageLookupByLibrary.simpleMessage("Memuat..."),
+        "loggingOut":
+            MessageLookupByLibrary.simpleMessage("Proses Keluar Akun..."),
+        "login": MessageLookupByLibrary.simpleMessage("Masuk"),
+        "logout": MessageLookupByLibrary.simpleMessage("Keluar"),
+        "logoutMessage": MessageLookupByLibrary.simpleMessage(
+            "Apakah kamu ingin keluar akun ini?"),
+        "logoutSuccess":
+            MessageLookupByLibrary.simpleMessage("Keluar akun berhasil"),
+        "lostConnection":
+            MessageLookupByLibrary.simpleMessage("Koneksi Terputus"),
+        "notHaveAccount":
+            MessageLookupByLibrary.simpleMessage("Tidak Punya Akun?"),
+        "password": MessageLookupByLibrary.simpleMessage("Kata Sandi"),
+        "passwordAtLeast8Char": MessageLookupByLibrary.simpleMessage(
+            "Kata Sandi Minimal 8 Karakter"),
+        "passwordCapital": MessageLookupByLibrary.simpleMessage(
+            "Kata Sandi Harus Mengandung Huruf Besar"),
+        "passwordNotMatch":
+            MessageLookupByLibrary.simpleMessage("Kata Sandi Tidak Cocok"),
+        "profile": MessageLookupByLibrary.simpleMessage("Profil"),
+        "refresh": MessageLookupByLibrary.simpleMessage("Segarkan"),
+        "register": MessageLookupByLibrary.simpleMessage("Daftar"),
+        "settings": MessageLookupByLibrary.simpleMessage("Pengaturan"),
+        "titleApp": MessageLookupByLibrary.simpleMessage("Aplikasi Cerita"),
+        "upload": MessageLookupByLibrary.simpleMessage("Unggah"),
+        "username": MessageLookupByLibrary.simpleMessage("Nama Pengguna"),
+        "welcomeBack": MessageLookupByLibrary.simpleMessage("Selamat Datang "),
+        "yes": MessageLookupByLibrary.simpleMessage("Ya")
       };
 }
