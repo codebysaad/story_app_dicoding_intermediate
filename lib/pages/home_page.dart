@@ -96,7 +96,6 @@ class _HomePageState extends State<HomePage> {
           context.goNamed(AppRoutePaths.addStoryRouteName);
         },
       ),
-      key: const Key(''),
     );
   }
 

@@ -9,6 +9,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:story_app/layouts/custom_image_button.dart';
 import 'package:story_app/providers/stories_provider.dart';
+import 'package:story_app/utils/state_activity.dart';
 import '../layouts/custom_pop_menu.dart';
 import '../utils/common.dart';
 import '../utils/platform_widget.dart';
@@ -21,20 +22,14 @@ class AddNewStoryPage extends StatefulWidget {
 }
 
 class _AddNewStoryPageState extends State<AddNewStoryPage> {
-  final TextEditingController descriptionController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
   final formKey = GlobalKey<FormState>();
   bool isLoadingLocation = false;
 
   @override
   void dispose() {
-    descriptionController.dispose();
+    _descriptionController.dispose();
     super.dispose();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    context.read<StoriesProvider>().message = 'init';
   }
 
   final loading = SpinKitFadingCircle(
@@ -73,58 +68,61 @@ class _AddNewStoryPageState extends State<AddNewStoryPage> {
                   const SizedBox(height: 12),
                   Consumer<StoriesProvider>(
                       builder: (context, storiesProvider, child) {
-                        WidgetsBinding.instance.addPostFrameCallback((_) {
-                          if (storiesProvider.message != "") {
-                            if (storiesProvider.addNewStoryResponse.error) {
-                              Fluttertoast.showToast(
-                                  msg: storiesProvider.message,
-                                  toastLength: Toast.LENGTH_SHORT,
-                                  gravity: ToastGravity.CENTER,
-                                  timeInSecForIosWeb: 1,
-                                  backgroundColor: Colors.red,
-                                  textColor: Colors.white,
-                                  fontSize: 16.0);
-                              storiesProvider.clear();
-                            } else {
-                              Fluttertoast.showToast(
-                                  msg: storiesProvider.message,
-                                  toastLength: Toast.LENGTH_SHORT,
-                                  gravity: ToastGravity.CENTER,
-                                  timeInSecForIosWeb: 1,
-                                  backgroundColor: Colors.red,
-                                  textColor: Colors.white,
-                                  fontSize: 16.0);
-                              storiesProvider.clear();
-                              context.pop();
-                              setState(() {
-                                context.read<StoriesProvider>().getAllStories();
-                              });
-                            }
-                          }
-                        });
-                        return storiesProvider.isLoading
-                            ? loading
-                            : Container(
+                    // WidgetsBinding.instance.addPostFrameCallback((_) {
+                    //   if (storiesProvider.message != "") {
+                    //     if (storiesProvider.state == StateActivity.hasData) {
+                    //       if (storiesProvider.addNewStoryResponse.error) {
+                    //         Fluttertoast.showToast(
+                    //             msg: storiesProvider.message,
+                    //             toastLength: Toast.LENGTH_SHORT,
+                    //             gravity: ToastGravity.CENTER,
+                    //             timeInSecForIosWeb: 1,
+                    //             backgroundColor: Colors.red,
+                    //             textColor: Colors.white,
+                    //             fontSize: 16.0);
+                    //         storiesProvider.clear();
+                    //       } else {
+                    //         Fluttertoast.showToast(
+                    //             msg: storiesProvider.message,
+                    //             toastLength: Toast.LENGTH_SHORT,
+                    //             gravity: ToastGravity.CENTER,
+                    //             timeInSecForIosWeb: 1,
+                    //             backgroundColor: Colors.red,
+                    //             textColor: Colors.white,
+                    //             fontSize: 16.0);
+                    //         storiesProvider.clear();
+                    //         context.pop();
+                    //         setState(() {
+                    //           context.read<StoriesProvider>().getAllStories();
+                    //         });
+                    //       }
+                    //     }
+                    //   }
+                    // });
+                    return storiesProvider.isLoading
+                        ? loading
+                        : Container(
                             padding: const EdgeInsets.only(top: 3, left: 3),
                             child: ElevatedButton(
                               onPressed: () {
                                 if (formKey.currentState!.validate()) {
-                                  _onUpload(storiesProvider);
+                                  _onUpload();
                                 }
                               },
                               style: ElevatedButton.styleFrom(
                                 shape: const StadiumBorder(),
                                 padding:
-                                const EdgeInsets.symmetric(vertical: 16),
+                                    const EdgeInsets.symmetric(vertical: 16),
                                 backgroundColor: Colors.blueAccent,
                               ),
                               child: Text(
-                                AppLocalizations.of(context)?.upload ?? 'Upload',
+                                AppLocalizations.of(context)?.upload ??
+                                    'Upload',
                                 style: const TextStyle(
                                     fontSize: 20, color: Colors.white),
                               ),
                             ));
-                      }),
+                  }),
                 ],
               ),
             ),
@@ -175,24 +173,24 @@ class _AddNewStoryPageState extends State<AddNewStoryPage> {
       ),
       child: imagePath == null
           ? const Center(
-        child: Icon(
-          Icons.image,
-          size: 80,
-          color: Colors.grey,
-        ),
-      )
+              child: Icon(
+                Icons.image,
+                size: 80,
+                color: Colors.grey,
+              ),
+            )
           : ClipRRect(
-        borderRadius: BorderRadius.circular(8.0),
-        child: kIsWeb
-            ? Image.network(
-          imagePath.toString(),
-          fit: BoxFit.cover,
-        )
-            : Image.file(
-          File(imagePath.toString()),
-          fit: BoxFit.cover,
-        ),
-      ),
+              borderRadius: BorderRadius.circular(8.0),
+              child: kIsWeb
+                  ? Image.network(
+                      imagePath.toString(),
+                      fit: BoxFit.cover,
+                    )
+                  : Image.file(
+                      File(imagePath.toString()),
+                      fit: BoxFit.cover,
+                    ),
+            ),
     );
   }
 
@@ -222,7 +220,7 @@ class _AddNewStoryPageState extends State<AddNewStoryPage> {
 
   Widget _buildDescriptionTextField() {
     return TextField(
-      controller: descriptionController,
+      controller: _descriptionController,
       keyboardType: TextInputType.multiline,
       maxLines: 6,
       decoration: InputDecoration(
@@ -235,12 +233,39 @@ class _AddNewStoryPageState extends State<AddNewStoryPage> {
     );
   }
 
-  _onUpload(StoriesProvider storiesProvider) async {
+  _onUpload() async {
+    final storiesProvider = context.read<StoriesProvider>();
     await storiesProvider.addNewStory(
-      description: descriptionController.text.isNotEmpty
-          ? descriptionController.text
+      description: _descriptionController.text.isNotEmpty
+          ? _descriptionController.text
           : 'No Description',
     );
+
+    if (storiesProvider.state == StateActivity.hasData) {
+      Fluttertoast.showToast(
+          msg: storiesProvider.message,
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0);
+      storiesProvider.clear();
+      context.pop();
+      setState(() {
+        context.read<StoriesProvider>().getAllStories();
+      });
+    } else {
+      Fluttertoast.showToast(
+          msg: storiesProvider.message,
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0);
+      storiesProvider.clear();
+    }
   }
 
   _onGalleryView() async {
