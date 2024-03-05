@@ -115,50 +115,46 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildList() {
-    return Consumer<AuthProvider>(builder: (_, authProvider, __) {
+    return Consumer2<AuthProvider, StoriesProvider>(builder: (context, authProvider, storiesProvider, child) {
       if (authProvider.isLoading) {
         return LoadingAnimation(
           message: AppLocalizations.of(context)?.loggingOut ?? 'Logging Out...',
         );
       } else {
-        return Consumer<StoriesProvider>(
-          builder: (_, provider, __) {
-            switch (provider.state) {
-              case StateActivity.loading:
-                return LoadingAnimation(
-                  message: AppLocalizations.of(context)!.loading,
-                );
-              case StateActivity.hasData:
-                return ListView.builder(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
-                  ),
-                  itemCount: provider.storiesResponse.listStory.length,
-                  itemBuilder: (_, index) {
-                    final stories = provider.storiesResponse.listStory[index];
-                    return StoryItem(story: stories);
-                  },
-                );
-              case StateActivity.noData:
-                return TextMessage(
-                  image: 'assets/images/empty-data.png',
-                  message:
-                      AppLocalizations.of(context)?.emptyData ?? 'Empty Data',
-                );
-              case StateActivity.error:
-                return TextMessage(
-                  image: 'assets/images/no-internet.png',
-                  message: AppLocalizations.of(context)?.lostConnection ??
-                      'Lost Connection',
-                  titleButton: AppLocalizations.of(context)!.refresh,
-                  onPressed: () => provider.getAllStories(),
-                );
-              default:
-                return const SizedBox();
-            }
-          },
-        );
+        switch (storiesProvider.state) {
+          case StateActivity.loading:
+            return LoadingAnimation(
+              message: AppLocalizations.of(context)!.loading,
+            );
+          case StateActivity.hasData:
+            return ListView.builder(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 8,
+              ),
+              itemCount: storiesProvider.storiesResponse.listStory.length,
+              itemBuilder: (_, index) {
+                final stories = storiesProvider.storiesResponse.listStory[index];
+                return StoryItem(story: stories);
+              },
+            );
+          case StateActivity.noData:
+            return TextMessage(
+              image: 'assets/images/empty-data.png',
+              message:
+              AppLocalizations.of(context)?.emptyData ?? 'Empty Data',
+            );
+          case StateActivity.error:
+            return TextMessage(
+              image: 'assets/images/no-internet.png',
+              message: AppLocalizations.of(context)?.lostConnection ??
+                  'Lost Connection',
+              titleButton: AppLocalizations.of(context)!.refresh,
+              onPressed: () => storiesProvider.getAllStories(),
+            );
+          default:
+            return const SizedBox();
+        };
       }
     });
   }

@@ -29,7 +29,7 @@ class StoriesProvider with ChangeNotifier {
   late GeneralResponse _addNewStoryResponse;
   GeneralResponse get addNewStoryResponse => _addNewStoryResponse;
 
-  late StateActivity _state;
+  StateActivity _state = StateActivity.init;
   StateActivity get state => _state;
 
   bool _isLoading = false;
