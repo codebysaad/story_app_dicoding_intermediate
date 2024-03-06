@@ -127,7 +127,7 @@ class StoriesProvider with ChangeNotifier {
 
       final responses = await apiServices.getStoryDetails(token, id);
 
-      if (responses.error == true) {
+      if (responses.error) {
         _isLoading = false;
         _state = StateActivity.noData;
         _message = responses.message;
@@ -141,7 +141,7 @@ class StoriesProvider with ChangeNotifier {
         _state = StateActivity.hasData;
         _message = responses.message;
         log(responses.story.name.toString());
-        log('Detail Story : ${responses.story}');
+        log('Detail Story : ${responses.story.createdAt}');
         notifyListeners();
 
         return _detailsStoryResponse = responses;

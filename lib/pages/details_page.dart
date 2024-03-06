@@ -32,9 +32,7 @@ class _DetailsPageState extends State<DetailsPage> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<StoriesProvider>().getDetailStory(id: widget.id);
-    });
+    Future.microtask(() => context.read<StoriesProvider>().getDetailStory(id: widget.id));
   }
 
   @override
@@ -72,8 +70,7 @@ class _DetailsPageState extends State<DetailsPage> {
                     message: AppLocalizations.of(context)?.loading ?? 'Loading...',
                   );
                 case StateActivity.hasData:
-                  String timeString =
-                  provider.detailsStoryResponse.story.createdAt.toString();
+                  String timeString = provider.detailsStoryResponse.story.createdAt.toString();
                   String locale = Localizations.localeOf(context).languageCode;
                   DateTime dateTime = DateTime.parse(timeString).toLocal();
                   String dayStory = DateFormat.EEEE(locale).format(dateTime);

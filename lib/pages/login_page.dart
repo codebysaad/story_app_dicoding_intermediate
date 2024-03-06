@@ -28,7 +28,6 @@ class _LoginPage extends State<LoginPage> {
   bool isPasswordVisible = false;
   final formKey = GlobalKey<FormState>();
   bool isPasswdLength8Char = false;
-  bool isPasswdContainCapital = false;
 
   @override
   void initState() {
@@ -140,95 +139,87 @@ class _LoginPage extends State<LoginPage> {
                                   return AppLocalizations.of(context)!
                                       .passwordAtLeast8Char;
                                 }
-                                if (!isPasswdContainCapital) {
-                                  return AppLocalizations.of(context)!
-                                      .passwordCapital;
-                                }
                                 return null;
                               },
                             ),
                             const SizedBox(height: 20),
-                            Consumer<AuthProvider>(
-                                builder: (context, authProvider, child) {
-                              return Consumer<PreferenceProvider>(
-                                  builder: (context, preference, child) {
-                                WidgetsBinding.instance
-                                    .addPostFrameCallback((_) {
-                                  if (authProvider.message != "") {
-                                    if (authProvider.loginResponse.error) {
+                            Consumer2<AuthProvider, PreferenceProvider>(builder: (context, authProvider, preference, child){
+                              WidgetsBinding.instance
+                                  .addPostFrameCallback((_) {
+                                if (authProvider.message != "") {
+                                  if (authProvider.loginResponse.error) {
+                                    Fluttertoast.showToast(
+                                        msg: authProvider.message,
+                                        toastLength: Toast.LENGTH_SHORT,
+                                        gravity: ToastGravity.CENTER,
+                                        timeInSecForIosWeb: 1,
+                                        backgroundColor: Colors.red,
+                                        textColor: Colors.white,
+                                        fontSize: 16.0);
+                                    authProvider.clear();
+                                  } else {
+                                    Fluttertoast.showToast(
+                                        msg: authProvider.message,
+                                        toastLength: Toast.LENGTH_SHORT,
+                                        gravity: ToastGravity.CENTER,
+                                        timeInSecForIosWeb: 1,
+                                        backgroundColor: Colors.red,
+                                        textColor: Colors.white,
+                                        fontSize: 16.0);
+                                    authProvider.clear();
+                                    String token = authProvider
+                                        .loginResponse.loginData.token;
+                                    String name = authProvider
+                                        .loginResponse.loginData.name;
+                                    preference.saveToken(token, true, name);
+                                    context.go(AppRoutePaths.rootRouteName);
+                                  }
+                                }
+                              });
+                              return authProvider.isLoading
+                                  ? loading
+                                  : ElevatedButton(
+                                onPressed: () {
+                                  if (formKey.currentState!
+                                      .validate()) {
+                                    if (_emailController.text.isEmpty ||
+                                        _passwordController
+                                            .text.isEmpty) {
                                       Fluttertoast.showToast(
-                                          msg: authProvider.message,
-                                          toastLength: Toast.LENGTH_SHORT,
+                                          msg: AppLocalizations.of(
+                                              context)!
+                                              .allFieldRequired,
+                                          toastLength:
+                                          Toast.LENGTH_SHORT,
                                           gravity: ToastGravity.CENTER,
                                           timeInSecForIosWeb: 1,
                                           backgroundColor: Colors.red,
                                           textColor: Colors.white,
                                           fontSize: 16.0);
-                                      authProvider.clear();
                                     } else {
-                                      Fluttertoast.showToast(
-                                          msg: authProvider.message,
-                                          toastLength: Toast.LENGTH_SHORT,
-                                          gravity: ToastGravity.CENTER,
-                                          timeInSecForIosWeb: 1,
-                                          backgroundColor: Colors.red,
-                                          textColor: Colors.white,
-                                          fontSize: 16.0);
-                                      authProvider.clear();
-                                      String token = authProvider
-                                          .loginResponse.loginData.token;
-                                      String name = authProvider
-                                          .loginResponse.loginData.name;
-                                      preference.saveToken(token, true, name);
-                                      context.go(AppRoutePaths.rootRouteName);
+                                      authProvider.login(
+                                          email: _emailController.text
+                                              .trim(),
+                                          password: _passwordController
+                                              .text
+                                              .trim());
                                     }
                                   }
-                                });
-                                return authProvider.isLoading
-                                    ? loading
-                                    : ElevatedButton(
-                                        onPressed: () {
-                                          if (formKey.currentState!
-                                              .validate()) {
-                                            if (_emailController.text.isEmpty ||
-                                                _passwordController
-                                                    .text.isEmpty) {
-                                              Fluttertoast.showToast(
-                                                  msg: AppLocalizations.of(
-                                                          context)!
-                                                      .allFieldRequired,
-                                                  toastLength:
-                                                      Toast.LENGTH_SHORT,
-                                                  gravity: ToastGravity.CENTER,
-                                                  timeInSecForIosWeb: 1,
-                                                  backgroundColor: Colors.red,
-                                                  textColor: Colors.white,
-                                                  fontSize: 16.0);
-                                            } else {
-                                              authProvider.login(
-                                                  email: _emailController.text
-                                                      .trim(),
-                                                  password: _passwordController
-                                                      .text
-                                                      .trim());
-                                            }
-                                          }
-                                        },
-                                        style: ElevatedButton.styleFrom(
-                                          shape: const StadiumBorder(),
-                                          padding: const EdgeInsets.symmetric(
-                                              vertical: 16),
-                                          backgroundColor: Colors.blueAccent,
-                                        ),
-                                        child: Text(
-                                          AppLocalizations.of(context)?.login ??
-                                              'Login',
-                                          style: const TextStyle(
-                                              fontSize: 20,
-                                              color: Colors.white),
-                                        ),
-                                      );
-                              });
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  shape: const StadiumBorder(),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 16),
+                                  backgroundColor: Colors.blueAccent,
+                                ),
+                                child: Text(
+                                  AppLocalizations.of(context)?.login ??
+                                      'Login',
+                                  style: const TextStyle(
+                                      fontSize: 20,
+                                      color: Colors.white),
+                                ),
+                              );
                             }),
                           ],
                         ),
@@ -262,7 +253,6 @@ class _LoginPage extends State<LoginPage> {
 
   checkPassword(String password) {
     isPasswdLength8Char = password.length >= 8;
-    isPasswdContainCapital = password.contains(RegExp(r'[A-Z]'));
   }
 
   checkMatchingPassword(String password, String confirmPassword) {

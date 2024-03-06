@@ -68,37 +68,6 @@ class _AddNewStoryPageState extends State<AddNewStoryPage> {
                   const SizedBox(height: 12),
                   Consumer<StoriesProvider>(
                       builder: (context, storiesProvider, child) {
-                    // WidgetsBinding.instance.addPostFrameCallback((_) {
-                    //   if (storiesProvider.message != "") {
-                    //     if (storiesProvider.state == StateActivity.hasData) {
-                    //       if (storiesProvider.addNewStoryResponse.error) {
-                    //         Fluttertoast.showToast(
-                    //             msg: storiesProvider.message,
-                    //             toastLength: Toast.LENGTH_SHORT,
-                    //             gravity: ToastGravity.CENTER,
-                    //             timeInSecForIosWeb: 1,
-                    //             backgroundColor: Colors.red,
-                    //             textColor: Colors.white,
-                    //             fontSize: 16.0);
-                    //         storiesProvider.clear();
-                    //       } else {
-                    //         Fluttertoast.showToast(
-                    //             msg: storiesProvider.message,
-                    //             toastLength: Toast.LENGTH_SHORT,
-                    //             gravity: ToastGravity.CENTER,
-                    //             timeInSecForIosWeb: 1,
-                    //             backgroundColor: Colors.red,
-                    //             textColor: Colors.white,
-                    //             fontSize: 16.0);
-                    //         storiesProvider.clear();
-                    //         context.pop();
-                    //         setState(() {
-                    //           context.read<StoriesProvider>().getAllStories();
-                    //         });
-                    //       }
-                    //     }
-                    //   }
-                    // });
                     return storiesProvider.isLoading
                         ? loading
                         : Container(
