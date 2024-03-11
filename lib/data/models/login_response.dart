@@ -5,8 +5,8 @@ LoginResponse welcomeFromJson(String str) => LoginResponse.fromJson(json.decode(
 String welcomeToJson(LoginResponse data) => json.encode(data.toJson());
 
 class LoginResponse {
-  bool error;
-  String message;
+  final bool error;
+  final String message;
   LoginData loginData;
 
   LoginResponse({
@@ -29,9 +29,9 @@ class LoginResponse {
 }
 
 class LoginData {
-  String userId;
-  String name;
-  String token;
+  final String userId;
+  final String name;
+  final String token;
 
   LoginData({
     required this.userId,

@@ -44,16 +44,18 @@ class CustomPopMenu extends StatelessWidget {
                     context.pop();
                     final authRead = context.read<AuthProvider>();
                     final result = await authRead.logout();
-                    Fluttertoast.showToast(
-                        msg: AppLocalizations.of(context)!.logoutSuccess,
-                        toastLength: Toast.LENGTH_SHORT,
-                        gravity: ToastGravity.CENTER,
-                        timeInSecForIosWeb: 1,
-                        backgroundColor: Colors.red,
-                        textColor: Colors.white,
-                        fontSize: 16.0
-                    );
-                    if (result) context.goNamed(AppRoutePaths.loginRouteName);
+                    if(context.mounted){
+                      Fluttertoast.showToast(
+                          msg: AppLocalizations.of(context)!.logoutSuccess,
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.CENTER,
+                          timeInSecForIosWeb: 1,
+                          backgroundColor: Colors.red,
+                          textColor: Colors.white,
+                          fontSize: 16.0
+                      );
+                      if (result) context.goNamed(AppRoutePaths.loginRouteName);
+                    }
                   },
                 ),
               ],

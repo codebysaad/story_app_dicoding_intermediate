@@ -1,6 +1,6 @@
 class GeneralResponse{
-  bool error;
-  String message;
+  final bool error;
+  final String message;
 
   GeneralResponse({
     required this.error,

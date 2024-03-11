@@ -5,8 +5,8 @@ StoriesResponse welcomeFromJson(String str) => StoriesResponse.fromJson(json.dec
 String welcomeToJson(StoriesResponse data) => json.encode(data.toJson());
 
 class StoriesResponse {
-  bool error;
-  String message;
+  final bool error;
+  final String message;
   List<ListStory> listStory;
 
   StoriesResponse({
@@ -29,11 +29,11 @@ class StoriesResponse {
 }
 
 class ListStory {
-  String id;
-  String name;
-  String description;
-  String photoUrl;
-  DateTime createdAt;
+  final String id;
+  final String name;
+  final String description;
+  final String photoUrl;
+  final DateTime createdAt;
   double? lat;
   double? lon;
 

@@ -9,8 +9,8 @@ DetailsStoryResponse welcomeFromJson(String str) => DetailsStoryResponse.fromJso
 String welcomeToJson(DetailsStoryResponse data) => json.encode(data.toJson());
 
 class DetailsStoryResponse {
-  bool error;
-  String message;
+  final bool error;
+  final String message;
   StoryDetails story;
 
   DetailsStoryResponse({
@@ -33,11 +33,11 @@ class DetailsStoryResponse {
 }
 
 class StoryDetails {
-  String id;
-  String name;
-  String description;
-  String photoUrl;
-  DateTime createdAt;
+  final String id;
+  final String name;
+  final String description;
+  final String photoUrl;
+  final DateTime createdAt;
   double? lat;
   double? lon;
 
