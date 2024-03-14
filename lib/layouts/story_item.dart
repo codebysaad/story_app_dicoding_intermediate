@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:story_app/data/models/stories_response.dart';
+import 'package:story_app/data/models/data_stories.dart';
 import 'package:story_app/routes/app_route_paths.dart';
 import 'package:timeago/timeago.dart' as time_ago;
 
 class StoryItem extends StatelessWidget {
-  final ListStory story;
+  final DataStories story;
 
   const StoryItem({super.key, required this.story});
 

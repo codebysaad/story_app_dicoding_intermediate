@@ -1,10 +1,13 @@
+import 'dart:developer';
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:geocoding/geocoding.dart' as geo;
 import 'package:go_router/go_router.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:story_app/layouts/custom_image_button.dart';
@@ -12,6 +15,7 @@ import 'package:story_app/providers/stories_provider.dart';
 import 'package:story_app/utils/state_activity.dart';
 import '../layouts/custom_pop_menu.dart';
 import '../utils/common.dart';
+import '../utils/location_handler.dart';
 import '../utils/platform_widget.dart';
 
 class AddNewStoryPage extends StatefulWidget {
@@ -24,6 +28,10 @@ class AddNewStoryPage extends StatefulWidget {
 class _AddNewStoryPageState extends State<AddNewStoryPage> {
   final TextEditingController _descriptionController = TextEditingController();
   final formKey = GlobalKey<FormState>();
+  final LocationHandler _locationHandler = LocationHandler();
+
+  LatLng inputLang = const LatLng(0.0, 0.0);
+  geo.Placemark? placemark;
   bool isLoadingLocation = false;
 
   @override
@@ -65,6 +73,7 @@ class _AddNewStoryPageState extends State<AddNewStoryPage> {
                   _buildImagePreview(),
                   _buildImageButtons(),
                   _buildDescriptionTextField(),
+                  _buildInputLocationButton(),
                   const SizedBox(height: 12),
                   Consumer<StoriesProvider>(
                       builder: (context, storiesProvider, child) {
@@ -202,9 +211,78 @@ class _AddNewStoryPageState extends State<AddNewStoryPage> {
     );
   }
 
+  Widget _buildInputLocationButton() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 16.0),
+      child: ElevatedButton(
+        onPressed: _onMyLocationButtonPress,
+        style: ElevatedButton.styleFrom(
+          padding: const EdgeInsets.all(16.0),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8.0),
+          ),
+        ),
+        child: isLoadingLocation
+            ? const SizedBox(
+                width: 24.0,
+                height: 24.0,
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+              )
+            : const Text(
+                "Input Location",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+      ),
+    );
+  }
+
+  void _onMyLocationButtonPress() async {
+    setState(() {
+      isLoadingLocation = true;
+    });
+
+    try {
+      final LatLng? latLng = await _locationHandler.getCurrentLocation();
+
+      if (latLng != null) {
+        final geo.Placemark? place = await _locationHandler.getPlacemark(
+            latLng.latitude, latLng.longitude);
+
+        setState(() {
+          inputLang = latLng;
+          placemark = place;
+        });
+
+        log('Get Loc: $place');
+      }
+    } catch (e) {
+      log("Error getting location: $e");
+
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Error getting location!"),
+        ),
+      );
+      // Handle error if needed
+    } finally {
+      setState(() {
+        isLoadingLocation = false;
+      });
+    }
+  }
+
   _onUpload() async {
     final storiesProvider = context.read<StoriesProvider>();
     await storiesProvider.addNewStory(
+      inputLang.latitude,
+      inputLang.longitude,
       description: _descriptionController.text.isNotEmpty
           ? _descriptionController.text
           : 'No Description',

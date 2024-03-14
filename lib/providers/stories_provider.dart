@@ -3,12 +3,15 @@ import 'dart:typed_data';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:story_app/data/models/details_story_response.dart';
 import 'package:story_app/data/models/general_response.dart';
+import 'package:story_app/data/models/maps_response.dart';
 import 'package:story_app/data/models/stories_response.dart';
 import 'package:story_app/providers/preference_provider.dart';
 import 'package:story_app/utils/state_activity.dart';
 import 'package:image/image.dart' as img;
+import 'package:geocoding/geocoding.dart' as geo;
 
 import '../data/rest/api_services.dart';
 
@@ -18,25 +21,40 @@ class StoriesProvider with ChangeNotifier {
   String? imagePath;
   XFile? imageFile;
 
-  StoriesProvider({required this.apiServices, required this.preferenceProvider});
+  StoriesProvider(
+      {required this.apiServices, required this.preferenceProvider});
 
   late StoriesResponse _storiesResponse;
+
   StoriesResponse get storiesResponse => _storiesResponse;
 
+  late MapsResponse _mapsResponse;
+
+  MapsResponse get mapsResponse => _mapsResponse;
+
   late DetailsStoryResponse _detailsStoryResponse;
+
   DetailsStoryResponse get detailsStoryResponse => _detailsStoryResponse;
 
   late GeneralResponse _addNewStoryResponse;
+
   GeneralResponse get addNewStoryResponse => _addNewStoryResponse;
 
   StateActivity _state = StateActivity.init;
+
   StateActivity get state => _state;
 
   bool _isLoading = false;
+
   bool get isLoading => _isLoading;
 
   String _message = '';
+
   String get message => _message;
+
+  final List<Marker> _markers = [];
+
+  List<Marker> get markers => _markers;
 
   set message(String value) {
     _message = value;
@@ -116,6 +134,64 @@ class StoriesProvider with ChangeNotifier {
     }
   }
 
+  Future<dynamic> getAllStoriesMap() async {
+    _isLoading = true;
+    _state = StateActivity.loading;
+    notifyListeners();
+    try {
+      final token = preferenceProvider.authToken;
+
+      final responses = await apiServices.getAllStoriesMaps(token);
+
+      if (responses.error == true) {
+        _isLoading = false;
+        _state = StateActivity.noData;
+        notifyListeners();
+        _message = responses.message;
+        log(message);
+        _mapsResponse = responses;
+
+        return _mapsResponse;
+      } else {
+        _isLoading = false;
+        _state = StateActivity.hasData;
+        notifyListeners();
+        _message = responses.message;
+        log('Maps: ${responses.listStory[0].name.toString()}');
+
+        _mapsResponse = responses;
+
+        // for (var data in responses.listStory) {
+        //   final info = await geo.placemarkFromCoordinates(data.lat, data.lon);
+        //
+        //   final place = info[0];
+        //   final street = place.street!;
+        //   final address =
+        //       '${place.subLocality}, ${place.locality}, ${place.postalCode}, ${place.country}';
+        //
+        //   final marker = Marker(
+        //     markerId: MarkerId(data.id),
+        //     position: LatLng(data.lat, data.lon),
+        //     infoWindow: InfoWindow(
+        //       title: street,
+        //       snippet: address,
+        //     ),
+        //   );
+        //   _markers.add(marker);
+        // }
+
+        return _mapsResponse;
+      }
+    } catch (e) {
+      _isLoading = false;
+      _state = StateActivity.error;
+      notifyListeners();
+      _message = 'Error --> $e';
+
+      return _message;
+    }
+  }
+
   Future<dynamic> getDetailStory({required String id}) async {
     try {
       final token = preferenceProvider.authToken;
@@ -156,7 +232,7 @@ class StoriesProvider with ChangeNotifier {
     }
   }
 
-  Future<dynamic> addNewStory({required String description}) async {
+  Future<dynamic> addNewStory(double? lat, double? lon, {required String description}) async {
     _isLoading = true;
     _state = StateActivity.loading;
     notifyListeners();
@@ -167,7 +243,8 @@ class StoriesProvider with ChangeNotifier {
       final bytes = await imageFile!.readAsBytes();
       final newBytes = compressImage(bytes);
 
-      final addingStory = await apiServices.addNewStory(token, newBytes, description, fileName);
+      final addingStory =
+          await apiServices.addNewStory(token, newBytes, description, fileName, lat, lon);
       log('Result: ${addingStory.message}');
 
       if (addingStory.error) {

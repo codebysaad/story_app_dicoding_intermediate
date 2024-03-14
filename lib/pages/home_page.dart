@@ -3,17 +3,11 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
 import 'package:story_app/layouts/icon_flag_locale.dart';
-import 'package:story_app/layouts/story_item.dart';
-import 'package:story_app/providers/auth_provider.dart';
-import 'package:story_app/providers/stories_provider.dart';
-import 'package:story_app/routes/app_route_paths.dart';
-import 'package:story_app/utils/state_activity.dart';
+import 'package:story_app/pages/list_stories_tab.dart';
+import 'package:story_app/pages/map_stories_tab.dart';
 
 import '../layouts/custom_pop_menu.dart';
-import '../layouts/loading_animation.dart';
-import '../layouts/text_message.dart';
 import '../utils/common.dart';
 import '../utils/platform_widget.dart';
 
@@ -24,18 +18,48 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin{
+  late TabController _controller;
 
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<StoriesProvider>(context, listen: false).getAllStories();
+  int _bottomNavIndex = 0;
+  static const String _stories = 'Stories';
+  static const String _maps = 'Maps';
+
+  final List<Widget> _listWidget = [
+    const ListStoriesTab(),
+    const MapStoriesTab(),
+  ];
+
+  final List<BottomNavigationBarItem> _bottomNavBarItems = [
+    BottomNavigationBarItem(
+      icon: Icon(Platform.isIOS ? CupertinoIcons.news_solid : Icons.note_alt_rounded),
+      label: _stories,
+    ),
+    BottomNavigationBarItem(
+      icon: Icon(Platform.isIOS ? CupertinoIcons.map_fill : Icons.map_rounded),
+      label: _maps,
+    ),
+  ];
+
+  void _onBottomNavTapped(int index) {
+    setState(() {
+      _bottomNavIndex = index;
     });
   }
 
   @override
+  void initState() {
+    _controller = TabController(
+      length: 2,
+      vsync: this,
+      initialIndex: 0,
+    );
+    super.initState();
+  }
+
+  @override
   void dispose() {
+    _controller.dispose();
     super.dispose();
   }
 
@@ -75,24 +99,22 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildIos(BuildContext context) {
-    return CupertinoPageScaffold(
-      navigationBar: const CupertinoNavigationBar(
-        transitionBetweenRoutes: false,
-      ),
-      child: _buildList(),
+    return CupertinoTabScaffold(
+      tabBar: CupertinoTabBar(items: _bottomNavBarItems),
+      tabBuilder: (context, index) {
+        return _listWidget[index];
+      },
     );
   }
 
   Widget _buildAndroid(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(context),
-      body: _buildList(),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.blue,
-        child: const Icon(Icons.add_box, color: Colors.white),
-        onPressed: () {
-          context.goNamed(AppRoutePaths.addStoryRouteName);
-        },
+      body: _listWidget[_bottomNavIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _bottomNavIndex,
+        items: _bottomNavBarItems,
+        onTap: _onBottomNavTapped,
       ),
     );
   }
@@ -110,50 +132,5 @@ class _HomePageState extends State<HomePage> {
         CustomPopMenu(),
       ],
     );
-  }
-
-  Widget _buildList() {
-    return Consumer2<AuthProvider, StoriesProvider>(builder: (context, authProvider, storiesProvider, child) {
-      if (authProvider.isLoading) {
-        return LoadingAnimation(
-          message: AppLocalizations.of(context)?.loggingOut ?? 'Logging Out...',
-        );
-      } else {
-        switch (storiesProvider.state) {
-          case StateActivity.loading:
-            return LoadingAnimation(
-              message: AppLocalizations.of(context)!.loading,
-            );
-          case StateActivity.hasData:
-            return ListView.builder(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 8,
-              ),
-              itemCount: storiesProvider.storiesResponse.listStory.length,
-              itemBuilder: (_, index) {
-                final stories = storiesProvider.storiesResponse.listStory[index];
-                return StoryItem(story: stories);
-              },
-            );
-          case StateActivity.noData:
-            return TextMessage(
-              image: 'assets/images/empty-data.png',
-              message:
-              AppLocalizations.of(context)?.emptyData ?? 'Empty Data',
-            );
-          case StateActivity.error:
-            return TextMessage(
-              image: 'assets/images/no-internet.png',
-              message: AppLocalizations.of(context)?.lostConnection ??
-                  'Lost Connection',
-              titleButton: AppLocalizations.of(context)!.refresh,
-              onPressed: () => storiesProvider.getAllStories(),
-            );
-          default:
-            return const SizedBox();
-        }
-      }
-    });
   }
 }

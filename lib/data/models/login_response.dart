@@ -1,53 +1,18 @@
-import 'dart:convert';
+import 'package:freezed_annotation/freezed_annotation.dart' hide JsonKey;
+import 'package:json_annotation/json_annotation.dart';
+import 'login_data.dart';
 
-LoginResponse welcomeFromJson(String str) => LoginResponse.fromJson(json.decode(str));
+part 'login_response.g.dart';
+part 'login_response.freezed.dart';
 
-String welcomeToJson(LoginResponse data) => json.encode(data.toJson());
+@freezed
 
-class LoginResponse {
-  final bool error;
-  final String message;
-  LoginData loginData;
+class LoginResponse with _$LoginResponse{
+  const factory LoginResponse({
+    @JsonKey(name: "error") required bool error,
+    @JsonKey(name: "message") required String message,
+    @JsonKey(name: "loginResult") required LoginData loginData,
+}) = _LoginResponse;
 
-  LoginResponse({
-    required this.error,
-    required this.message,
-    required this.loginData,
-  });
-
-  factory LoginResponse.fromJson(Map<String, dynamic> json) => LoginResponse(
-    error: json["error"],
-    message: json["message"],
-    loginData: LoginData.fromJson(json["loginResult"]),
-  );
-
-  Map<String, dynamic> toJson() => {
-    "error": error,
-    "message": message,
-    "loginResult": loginData.toJson(),
-  };
-}
-
-class LoginData {
-  final String userId;
-  final String name;
-  final String token;
-
-  LoginData({
-    required this.userId,
-    required this.name,
-    required this.token,
-  });
-
-  factory LoginData.fromJson(Map<String, dynamic> json) => LoginData(
-    userId: json["userId"],
-    name: json["name"],
-    token: json["token"],
-  );
-
-  Map<String, dynamic> toJson() => {
-    "userId": userId,
-    "name": name,
-    "token": token,
-  };
+  factory LoginResponse.fromJson(Map<String, dynamic> json) => _$LoginResponseFromJson(json);
 }

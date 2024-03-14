@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:story_app/data/models/details_story_response.dart';
 import 'package:story_app/data/models/general_response.dart';
 import 'package:story_app/data/models/login_response.dart';
+import 'package:story_app/data/models/maps_response.dart';
 import 'package:story_app/data/models/stories_response.dart';
 
 class ApiServices {
@@ -63,6 +64,22 @@ class ApiServices {
     }
   }
 
+  Future<MapsResponse> getAllStoriesMaps(String token) async {
+    final url = Uri.parse('$baseUrl/stories?location=1');
+    final response = await client.get(
+      url,
+      headers: {
+        "Authorization": "Bearer $token",
+      },
+
+    );
+    if (response.statusCode == 200) {
+      return MapsResponse.fromJson(json.decode(response.body));
+    } else {
+      throw Exception('Failed to load data');
+    }
+  }
+
   Future<DetailsStoryResponse> getStoryDetails(String token, String id) async {
     final url = Uri.parse('$baseUrl/stories/$id');
     final response = await client.get(
@@ -79,7 +96,7 @@ class ApiServices {
     }
   }
 
-  Future<GeneralResponse> addNewStory(String token, List<int> bytes, String description, String fileName,) async {
+  Future<GeneralResponse> addNewStory(String token, List<int> bytes, String description, String fileName, double? lat, double? lon) async {
     try {
       final url = Uri.parse('$baseUrl/stories');
       var request = http.MultipartRequest('POST', url);
@@ -87,7 +104,9 @@ class ApiServices {
           filename: fileName);
 
       final Map<String, String> fields = {
-        "description": description,
+        'description': description,
+        'lat': lat?.toString() ?? '0.0',
+        'lon': lon?.toString() ?? '0.0',
       };
 
       final Map<String, String> headers = {
