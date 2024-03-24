@@ -5,6 +5,7 @@ import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:provider/provider.dart';
 import 'package:story_app/data/models/data_stories.dart';
 import 'package:story_app/data/models/details_story_response.dart';
 import 'package:story_app/data/models/general_response.dart';
@@ -16,6 +17,7 @@ import 'package:image/image.dart' as img;
 import 'package:geocoding/geocoding.dart' as geo;
 
 import '../data/rest/api_services.dart';
+import 'location_provider.dart';
 
 class StoriesProvider with ChangeNotifier {
   final ApiServices apiServices;
@@ -24,6 +26,8 @@ class StoriesProvider with ChangeNotifier {
   XFile? imageFile;
   geo.Placemark? placemark;
   String? address;
+  double? lat;
+  double? lon;
 
   StoriesProvider(
       {required this.apiServices, required this.preferenceProvider});
@@ -171,7 +175,7 @@ class StoriesProvider with ChangeNotifier {
       _state = StateActivity.hasData;
       _message = responses.message;
       log(responses.story.name.toString());
-      log('Detail Story : ${responses.story.createdAt}');
+      log('Detail Story : ${responses.story.lat}');
       notifyListeners();
     } catch (e) {
       _isLoading = false;
@@ -183,8 +187,7 @@ class StoriesProvider with ChangeNotifier {
     }
   }
 
-  Future<dynamic> addNewStory(double? lat, double? lon,
-      {required String description, required BuildContext context}) async {
+  Future<dynamic> addNewStory({required String description, required BuildContext context}) async {
     _isLoading = true;
     _state = StateActivity.loading;
     notifyListeners();
@@ -249,6 +252,13 @@ class StoriesProvider with ChangeNotifier {
           ),
         ),
       );
+    notifyListeners();
+  }
+
+  void addLocation(BuildContext context) {
+    final locProv = context.read<LocationProvider>();
+    lat = locProv.initLocation.latitude;
+    lon = locProv.initLocation.longitude;
     notifyListeners();
   }
 }

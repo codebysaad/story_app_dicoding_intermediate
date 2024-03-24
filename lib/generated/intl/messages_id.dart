@@ -44,9 +44,15 @@ class MessageLookup extends MessageLookupByLibrary {
         "errorEmptyPassword":
             MessageLookupByLibrary.simpleMessage("Masukkan Kata Sandi Anda"),
         "gallery": MessageLookupByLibrary.simpleMessage("Galeri"),
+        "getLocation":
+            MessageLookupByLibrary.simpleMessage("Mendapatkan Lokasi"),
         "hintDescription":
             MessageLookupByLibrary.simpleMessage("Masukkan deskripsi disini"),
         "loading": MessageLookupByLibrary.simpleMessage("Memuat..."),
+        "locationPermissionDenied":
+            MessageLookupByLibrary.simpleMessage("Ijin akses lokasi gagal"),
+        "locationServiceUnavailable": MessageLookupByLibrary.simpleMessage(
+            "Servis lokasi tidak tersedia"),
         "loggingOut":
             MessageLookupByLibrary.simpleMessage("Proses Keluar Akun..."),
         "login": MessageLookupByLibrary.simpleMessage("Masuk"),

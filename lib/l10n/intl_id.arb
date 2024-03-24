@@ -146,5 +146,17 @@
   "credentialMessage": "Masukkan kredensial akun anda untuk masuk",
   "@credentialMessage": {
     "description": "Masukkan kredensial akun anda untuk masuk"
+  },
+  "getLocation": "Mendapatkan Lokasi",
+  "@getLocation": {
+    "description": "Untuk mendapatkan lokasi terkini"
+  },
+  "locationServiceUnavailable": "Servis lokasi tidak tersedia",
+  "@locationServiceUnavailable": {
+    "description": "Pesan servis lokasi tidak tersedia"
+  },
+  "locationPermissionDenied": "Ijin akses lokasi gagal",
+  "@locationPermissionDenied": {
+    "description": "Pesan ijin akses lokasi gagal"
   }
 }

@@ -159,7 +159,7 @@ class _ListStoriesTabState extends State<ListStoriesTab> {
               message: AppLocalizations.of(context)?.lostConnection ??
                   'Lost Connection',
               titleButton: AppLocalizations.of(context)!.refresh,
-              onPressed: () => storiesProvider.getAllStories(),
+              onPressed: () => storiesProvider.refreshStory(context),
             );
         }
       }

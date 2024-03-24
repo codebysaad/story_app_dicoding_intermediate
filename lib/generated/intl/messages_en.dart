@@ -43,9 +43,14 @@ class MessageLookup extends MessageLookupByLibrary {
         "errorEmptyPassword":
             MessageLookupByLibrary.simpleMessage("Please enter your password"),
         "gallery": MessageLookupByLibrary.simpleMessage("Gallery"),
+        "getLocation": MessageLookupByLibrary.simpleMessage("Get Location"),
         "hintDescription": MessageLookupByLibrary.simpleMessage(
             "Enter your story description..."),
         "loading": MessageLookupByLibrary.simpleMessage("Loading..."),
+        "locationPermissionDenied": MessageLookupByLibrary.simpleMessage(
+            "Location permission is denied"),
+        "locationServiceUnavailable": MessageLookupByLibrary.simpleMessage(
+            "Location services is not available"),
         "loggingOut": MessageLookupByLibrary.simpleMessage("Logging Out..."),
         "login": MessageLookupByLibrary.simpleMessage("Login"),
         "logout": MessageLookupByLibrary.simpleMessage("Logout"),

@@ -35,5 +35,8 @@
   "passwordAtLeast8Char": "Password Must be at least 8 Character",
   "passwordCapital": "Password Mush have Capital Character",
   "passwordNotMatch": "Password Not Match!",
-  "credentialMessage": "Enter your credential to login"
+  "credentialMessage": "Enter your credential to login",
+  "getLocation": "Get Location",
+  "locationServiceUnavailable": "Location services is not available",
+  "locationPermissionDenied": "Location permission is denied"
 }

@@ -6,12 +6,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geocoding/geocoding.dart' as geo;
+import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:location/location.dart';
 import 'package:provider/provider.dart';
 import 'package:story_app/layouts/custom_image_button.dart';
+import 'package:story_app/providers/location_provider.dart';
 import 'package:story_app/providers/stories_provider.dart';
+import 'package:story_app/routes/app_route_paths.dart';
 import 'package:story_app/utils/state_activity.dart';
 import '../layouts/custom_pop_menu.dart';
 import '../layouts/placemark_widget.dart';
@@ -30,7 +33,6 @@ class _AddNewStoryPageState extends State<AddNewStoryPage> {
   final TextEditingController _descriptionController = TextEditingController();
   final formKey = GlobalKey<FormState>();
   final LocationHandler _locationHandler = LocationHandler();
-  String address = '';
 
   LatLng inputLang = const LatLng(0.0, 0.0);
   geo.Placemark? placemark;
@@ -77,42 +79,45 @@ class _AddNewStoryPageState extends State<AddNewStoryPage> {
             margin: const EdgeInsets.all(16),
             child: Form(
               key: formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  _buildImagePreview(),
-                  _buildImageButtons(),
-                  _buildDescriptionTextField(),
-                  _buildGetLocationButton(),
-                  const SizedBox(height: 12),
-                  Consumer<StoriesProvider>(
-                      builder: (context, storiesProvider, child) {
-                    return storiesProvider.isLoading
-                        ? loading
-                        : Container(
-                            padding: const EdgeInsets.only(top: 3, left: 3),
-                            child: ElevatedButton(
-                              onPressed: () {
-                                if (formKey.currentState!.validate()) {
-                                  _onUpload();
-                                }
-                              },
-                              style: ElevatedButton.styleFrom(
-                                shape: const StadiumBorder(),
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 16),
-                                backgroundColor: Colors.blueAccent,
-                              ),
-                              child: Text(
-                                AppLocalizations.of(context)?.upload ??
-                                    'Upload',
-                                style: const TextStyle(
-                                    fontSize: 20, color: Colors.white),
-                              ),
-                            ));
-                  }),
-                ],
-              ),
+              child: Consumer2<StoriesProvider, LocationProvider>(
+                  builder: (context, storiesProvider, locationProvider, child) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _buildImagePreview(),
+                    _buildImageButtons(),
+                    _buildDescriptionTextField(),
+                    _buildGetLocationButton(storiesProvider, locationProvider),
+                    const SizedBox(height: 12),
+                    Consumer<StoriesProvider>(
+                        builder: (context, storiesProvider, child) {
+                      return storiesProvider.isLoading
+                          ? loading
+                          : Container(
+                              padding: const EdgeInsets.only(top: 3, left: 3),
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  if (formKey.currentState!.validate()) {
+                                    _onUpload();
+                                  }
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  shape: const StadiumBorder(),
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 16),
+                                  backgroundColor: Colors.blueAccent,
+                                ),
+                                child: Text(
+                                  AppLocalizations.of(context)?.upload ??
+                                      'Upload',
+                                  style: const TextStyle(
+                                      fontSize: 20, color: Colors.white),
+                                ),
+                              ));
+                    }),
+                  ],
+                );
+              }),
             ),
           ),
         ),
@@ -221,18 +226,22 @@ class _AddNewStoryPageState extends State<AddNewStoryPage> {
     );
   }
 
-  Widget _buildGetLocationButton() {
+  Widget _buildGetLocationButton(
+      StoriesProvider storiesProvider, LocationProvider locationProvider) {
+    bool stateAddress =
+        storiesProvider.lat != null && storiesProvider.lon != null;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 16.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           ElevatedButton(
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (BuildContext context) => _buildPopupDialog(context),
-              );
+            onPressed: () async {
+              context.goNamed(AppRoutePaths.googleMapsRouteName);
+              // showDialog(
+              //   context: context,
+              //   builder: (BuildContext context) => _buildPopupDialog(context),
+              // );
             },
             style: ElevatedButton.styleFrom(
               shape: const StadiumBorder(),
@@ -247,16 +256,16 @@ class _AddNewStoryPageState extends State<AddNewStoryPage> {
                       valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                     ),
                   )
-                : address.isEmpty
-                    ? const Icon(Icons.location_searching_rounded,
+                : locationProvider.address.isEmpty
+                    ? const Icon(Icons.location_off,
                         color: Colors.white)
-                    : const Icon(Icons.my_location_rounded,
+                    : const Icon(Icons.location_on,
                         color: Colors.white),
           ),
           const SizedBox(width: 16),
           Flexible(
             child: Text(
-              address.isEmpty ? 'No Location' : address,
+              stateAddress ? locationProvider.address : 'No Location',
               softWrap: true,
               style: const TextStyle(
                 fontSize: 14,
@@ -271,54 +280,10 @@ class _AddNewStoryPageState extends State<AddNewStoryPage> {
     );
   }
 
-  void _onMyLocationButtonPress() async {
-    setState(() {
-      isLoadingLocation = true;
-    });
-
-    try {
-      final LatLng? latLng = await _locationHandler.getCurrentLocation();
-
-      if (latLng != null) {
-        final geo.Placemark? place = await _locationHandler.getPlacemark(
-            latLng.latitude, latLng.longitude);
-
-        setState(() {
-          inputLang = latLng;
-          placemark = place;
-          setState(() {
-            address =
-                '${place!.thoroughfare}, ${place.subLocality}, ${place.locality}, ${place.subAdministrativeArea}, ${place.administrativeArea}, ${place.postalCode}';
-          });
-        });
-
-        log('Get Loc: $place');
-      }
-    } catch (e) {
-      log("Error getting location: $e");
-
-      if (!context.mounted) return;
-      Fluttertoast.showToast(
-          msg: "Error getting location!",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.CENTER,
-          timeInSecForIosWeb: 1,
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-          fontSize: 16.0);
-    } finally {
-      setState(() {
-        isLoadingLocation = false;
-      });
-    }
-  }
-
   _onUpload() async {
     final storiesProvider = context.read<StoriesProvider>();
     await storiesProvider.addNewStory(
       context: context,
-      inputLang.latitude,
-      inputLang.longitude,
       description: _descriptionController.text.isNotEmpty
           ? _descriptionController.text
           : 'No Description',

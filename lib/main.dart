@@ -9,6 +9,7 @@ import 'package:story_app/data/rest/api_services.dart';
 import 'package:story_app/pages/add_new_story_page.dart';
 import 'package:story_app/pages/details_page.dart';
 import 'package:story_app/pages/error_page.dart';
+import 'package:story_app/pages/google_maps.dart';
 import 'package:story_app/pages/home_page.dart';
 import 'package:story_app/pages/login_page.dart';
 import 'package:story_app/pages/profile_page.dart';
@@ -65,7 +66,8 @@ class _MyApp extends State<MyApp> {
       child: FutureBuilder<void>(
         future: authProvider.init(),
         builder: (context, snapshot) {
-          final localizationProvider = Provider.of<LocalizationProvider>(context);
+          final localizationProvider =
+              Provider.of<LocalizationProvider>(context);
           if (snapshot.connectionState == ConnectionState.done) {
             router = GoRouter(
               routes: [
@@ -100,10 +102,17 @@ class _MyApp extends State<MyApp> {
                             );
                           }),
                       GoRoute(
-                        path: AppRoutePaths.addStoryRouteName,
-                        name: AppRoutePaths.addStoryRouteName,
-                        builder: (context, state) => const AddNewStoryPage(),
-                      ),
+                          path: AppRoutePaths.addStoryRouteName,
+                          name: AppRoutePaths.addStoryRouteName,
+                          builder: (context, state) => const AddNewStoryPage(),
+                          routes: [
+                            GoRoute(
+                              path: AppRoutePaths.googleMapsRouteName,
+                              name: AppRoutePaths.googleMapsRouteName,
+                              builder: (context, state) =>
+                                  const GoogleMapsPage(),
+                            ),
+                          ]),
                       GoRoute(
                         path: AppRoutePaths.profileRouteName,
                         name: AppRoutePaths.profileRouteName,

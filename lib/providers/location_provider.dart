@@ -6,8 +6,10 @@ import 'package:location/location.dart';
 import 'package:provider/provider.dart';
 import 'package:story_app/utils/state_activity.dart';
 
+import '../utils/common.dart';
+
 class LocationProvider extends ChangeNotifier {
-  LatLng initialLoc = const LatLng(-6.8957473, 107.6337669);
+  LatLng initLocation = const LatLng(-6.847937, 110.9274667);
 
   final Set<Marker> markers = {};
   MapType selectedMapType = MapType.normal;
@@ -21,7 +23,7 @@ class LocationProvider extends ChangeNotifier {
       ..clear()
       ..add(
         Marker(
-          markerId: const MarkerId('your-loc'),
+          markerId: const MarkerId('location'),
           position: latLng,
           infoWindow: InfoWindow(
             title: street,
@@ -48,7 +50,7 @@ class LocationProvider extends ChangeNotifier {
       if (!serviceEnabled) {
         if (!context.mounted) return;
         Fluttertoast.showToast(
-            msg: 'Location services is not available',
+            msg: AppLocalizations.of(context)!.locationServiceUnavailable,
             toastLength: Toast.LENGTH_SHORT,
             gravity: ToastGravity.CENTER,
             timeInSecForIosWeb: 1,
@@ -64,7 +66,7 @@ class LocationProvider extends ChangeNotifier {
       if (permissionGranted != PermissionStatus.granted) {
         if (!context.mounted) return;
         Fluttertoast.showToast(
-            msg: 'Location permission is denied',
+            msg: AppLocalizations.of(context)!.locationPermissionDenied,
             toastLength: Toast.LENGTH_SHORT,
             gravity: ToastGravity.CENTER,
             timeInSecForIosWeb: 1,
@@ -80,15 +82,14 @@ class LocationProvider extends ChangeNotifier {
 
     locationData = await location.getLocation();
 
-    locProv.initialLoc =
+    locProv.initLocation =
         LatLng(locationData.latitude!, locationData.longitude!);
     final latLng = LatLng(locationData.latitude!, locationData.longitude!);
     final info =
         await geo.placemarkFromCoordinates(latLng.latitude, latLng.longitude);
     final place = info[0];
     final street = place.street!;
-    address = '${place.subLocality}, ${place.locality}, '
-        '${place.postalCode}, ${place.country}';
+    address = '${place.thoroughfare}, ${place.subLocality}, ${place.locality}, ${place.subAdministrativeArea}, ${place.administrativeArea}, ${place.postalCode}';
     placemark = place;
 
     defineMarker(latLng, street, address);
@@ -116,14 +117,13 @@ class LocationProvider extends ChangeNotifier {
         await geo.placemarkFromCoordinates(latLng.latitude, latLng.longitude);
     final place = info[0];
     final street = place.street!;
-    address = '${place.subLocality}, ${place.locality}, '
-        '${place.postalCode}, ${place.country}';
+    address = '${place.thoroughfare}, ${place.subLocality}, ${place.locality}, ${place.subAdministrativeArea}, ${place.administrativeArea}, ${place.postalCode}';
 
     placemark = place;
     notifyListeners();
 
-    locProv.initialLoc = LatLng(latLng.latitude, latLng.longitude);
-    debugPrint(locProv.initialLoc.toString());
+    locProv.initLocation = LatLng(latLng.latitude, latLng.longitude);
+    debugPrint(locProv.initLocation.toString());
 
     defineMarker(latLng, street, address);
 
