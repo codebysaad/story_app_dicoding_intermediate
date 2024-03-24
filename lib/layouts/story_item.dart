@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:story_app/data/models/data_stories.dart';
@@ -75,23 +76,18 @@ class StoryItem extends StatelessWidget {
               ),
               ClipRRect(
                 borderRadius: BorderRadius.circular(24),
-                child: Image.network(
-                  story.photoUrl,
-                  fit: BoxFit.fill,
+                child: CachedNetworkImage(
+                  imageUrl: story.photoUrl,
                   width: MediaQuery.of(context).size.width,
                   height: 400,
-                  loadingBuilder: (_, child, loadingProgress) {
-                    if (loadingProgress == null) {
-                      return child;
-                    } else {
-                      return Center(
-                        child: CircularProgressIndicator(
-                          color: Colors.grey[400],
-                        ),
-                      );
-                    }
+                  errorWidget: (context, url, error) {
+                    return Icon(
+                      Icons.broken_image,
+                      size: 100,
+                      color: Colors.grey[400],
+                    );
                   },
-                  errorBuilder: (_, __, ___) {
+                  placeholder: (context, url) {
                     return Icon(
                       Icons.broken_image,
                       size: 100,

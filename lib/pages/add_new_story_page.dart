@@ -6,14 +6,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geocoding/geocoding.dart' as geo;
-import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:location/location.dart';
 import 'package:provider/provider.dart';
 import 'package:story_app/layouts/custom_image_button.dart';
 import 'package:story_app/providers/stories_provider.dart';
 import 'package:story_app/utils/state_activity.dart';
 import '../layouts/custom_pop_menu.dart';
+import '../layouts/placemark_widget.dart';
 import '../utils/common.dart';
 import '../utils/location_handler.dart';
 import '../utils/platform_widget.dart';
@@ -29,10 +30,16 @@ class _AddNewStoryPageState extends State<AddNewStoryPage> {
   final TextEditingController _descriptionController = TextEditingController();
   final formKey = GlobalKey<FormState>();
   final LocationHandler _locationHandler = LocationHandler();
+  String address = '';
 
   LatLng inputLang = const LatLng(0.0, 0.0);
   geo.Placemark? placemark;
   bool isLoadingLocation = false;
+  final dicodingOffice = const LatLng(-6.8957473, 107.6337669);
+
+  late GoogleMapController mapController;
+
+  late final Set<Marker> markers = {};
 
   @override
   void dispose() {
@@ -59,11 +66,14 @@ class _AddNewStoryPageState extends State<AddNewStoryPage> {
   }
 
   Widget _buildList() {
+    final size = MediaQuery.of(context).size;
+    final width = size.width;
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
         body: SingleChildScrollView(
           child: Container(
+            width: width * 0.9,
             margin: const EdgeInsets.all(16),
             child: Form(
               key: formKey,
@@ -73,7 +83,7 @@ class _AddNewStoryPageState extends State<AddNewStoryPage> {
                   _buildImagePreview(),
                   _buildImageButtons(),
                   _buildDescriptionTextField(),
-                  _buildInputLocationButton(),
+                  _buildGetLocationButton(),
                   const SizedBox(height: 12),
                   Consumer<StoriesProvider>(
                       builder: (context, storiesProvider, child) {
@@ -211,33 +221,52 @@ class _AddNewStoryPageState extends State<AddNewStoryPage> {
     );
   }
 
-  Widget _buildInputLocationButton() {
+  Widget _buildGetLocationButton() {
     return Padding(
-      padding: const EdgeInsets.only(top: 16.0),
-      child: ElevatedButton(
-        onPressed: _onMyLocationButtonPress,
-        style: ElevatedButton.styleFrom(
-          padding: const EdgeInsets.all(16.0),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8.0),
+      padding: const EdgeInsets.symmetric(vertical: 16.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          ElevatedButton(
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) => _buildPopupDialog(context),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              shape: const StadiumBorder(),
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+              backgroundColor: Colors.lightBlue,
+            ),
+            child: isLoadingLocation
+                ? const SizedBox(
+                    width: 24.0,
+                    height: 24.0,
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  )
+                : address.isEmpty
+                    ? const Icon(Icons.location_searching_rounded,
+                        color: Colors.white)
+                    : const Icon(Icons.my_location_rounded,
+                        color: Colors.white),
           ),
-        ),
-        child: isLoadingLocation
-            ? const SizedBox(
-                width: 24.0,
-                height: 24.0,
-                child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                ),
-              )
-            : const Text(
-                "Input Location",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
+          const SizedBox(width: 16),
+          Flexible(
+            child: Text(
+              address.isEmpty ? 'No Location' : address,
+              softWrap: true,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                fontStyle: FontStyle.italic,
+                color: Colors.black45,
               ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -257,6 +286,10 @@ class _AddNewStoryPageState extends State<AddNewStoryPage> {
         setState(() {
           inputLang = latLng;
           placemark = place;
+          setState(() {
+            address =
+                '${place!.thoroughfare}, ${place.subLocality}, ${place.locality}, ${place.subAdministrativeArea}, ${place.administrativeArea}, ${place.postalCode}';
+          });
         });
 
         log('Get Loc: $place');
@@ -265,12 +298,14 @@ class _AddNewStoryPageState extends State<AddNewStoryPage> {
       log("Error getting location: $e");
 
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Error getting location!"),
-        ),
-      );
-      // Handle error if needed
+      Fluttertoast.showToast(
+          msg: "Error getting location!",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0);
     } finally {
       setState(() {
         isLoadingLocation = false;
@@ -281,6 +316,7 @@ class _AddNewStoryPageState extends State<AddNewStoryPage> {
   _onUpload() async {
     final storiesProvider = context.read<StoriesProvider>();
     await storiesProvider.addNewStory(
+      context: context,
       inputLang.latitude,
       inputLang.longitude,
       description: _descriptionController.text.isNotEmpty
@@ -298,10 +334,6 @@ class _AddNewStoryPageState extends State<AddNewStoryPage> {
           textColor: Colors.white,
           fontSize: 16.0);
       storiesProvider.clear();
-      context.pop();
-      setState(() {
-        context.read<StoriesProvider>().getAllStories();
-      });
     } else {
       Fluttertoast.showToast(
           msg: storiesProvider.message,
@@ -352,5 +384,165 @@ class _AddNewStoryPageState extends State<AddNewStoryPage> {
       provider.setImageFile(pickedFile);
       provider.setImagePath(pickedFile.path);
     }
+  }
+
+  Widget _buildPopupDialog(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Popup example'),
+      content: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: Colors.blueAccent.withOpacity(.6),
+          ),
+        ),
+        width: MediaQuery.of(context).size.width,
+        child: ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: Stack(children: [
+              GoogleMap(
+                markers: markers,
+                zoomControlsEnabled: false,
+                mapToolbarEnabled: false,
+                myLocationButtonEnabled: false,
+                myLocationEnabled: true,
+                initialCameraPosition: CameraPosition(
+                  target: dicodingOffice,
+                  zoom: 15,
+                ),
+                onMapCreated: (controller) async {
+                  final info = await geo.placemarkFromCoordinates(
+                      dicodingOffice.latitude, dicodingOffice.longitude);
+
+                  final place = info[0];
+                  final street = place.street!;
+                  final address =
+                      '${place.subLocality}, ${place.locality}, ${place.postalCode}, ${place.country}';
+
+                  setState(() {
+                    placemark = place;
+                  });
+
+                  defineMarker(dicodingOffice, street, address);
+
+                  setState(() {
+                    mapController = controller;
+                  });
+                },
+                onTap: (LatLng latLng) => onLongPressGoogleMap(latLng),
+              ),
+              Positioned(
+                top: 16,
+                right: 16,
+                child: FloatingActionButton(
+                  child: const Icon(Icons.my_location),
+                  onPressed: () => onMyLocationButtonPress(),
+                ),
+              ),
+              if (placemark == null)
+                const SizedBox()
+              else
+                Positioned(
+                  bottom: 16,
+                  right: 16,
+                  left: 16,
+                  child: PlacemarkWidget(
+                    placemark: placemark!,
+                  ),
+                ),
+            ])),
+      ),
+      actions: <Widget>[
+        ElevatedButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          // textColor: Theme.of(context).primaryColor,
+          child: const Text('Close'),
+        ),
+      ],
+    );
+  }
+
+  void onLongPressGoogleMap(LatLng latLng) async {
+    final info =
+        await geo.placemarkFromCoordinates(latLng.latitude, latLng.longitude);
+
+    final place = info[0];
+    final street = place.street!;
+    final address =
+        '${place.subLocality}, ${place.locality}, ${place.postalCode}, ${place.country}';
+
+    setState(() {
+      placemark = place;
+    });
+
+    defineMarker(latLng, street, address);
+
+    mapController.animateCamera(
+      CameraUpdate.newLatLng(latLng),
+    );
+  }
+
+  void onMyLocationButtonPress() async {
+    final Location location = Location();
+    late bool serviceEnabled;
+    late PermissionStatus permissionGranted;
+    late LocationData locationData;
+
+    serviceEnabled = await location.serviceEnabled();
+    if (!serviceEnabled) {
+      serviceEnabled = await location.requestService();
+      if (!serviceEnabled) {
+        print("Location services is not available");
+        return;
+      }
+    }
+
+    permissionGranted = await location.hasPermission();
+    if (permissionGranted == PermissionStatus.denied) {
+      permissionGranted = await location.requestPermission();
+      if (permissionGranted != PermissionStatus.granted) {
+        print("Location permission is denied");
+        return;
+      }
+    }
+
+    locationData = await location.getLocation();
+    final latLng = LatLng(locationData.latitude!, locationData.longitude!);
+
+    final info =
+        await geo.placemarkFromCoordinates(latLng.latitude, latLng.longitude);
+
+    final place = info[0];
+    final street = place.street!;
+    final address =
+        '${place.subLocality}, ${place.locality}, ${place.postalCode}, ${place.country}';
+
+    setState(() {
+      placemark = place;
+    });
+
+    defineMarker(latLng, street, address);
+
+    mapController.animateCamera(
+      CameraUpdate.newLatLng(latLng),
+    );
+  }
+
+  void defineMarker(LatLng latLng, String street, String address) {
+    final marker = Marker(
+      markerId: const MarkerId("source"),
+      position: latLng,
+      infoWindow: InfoWindow(
+        title: street,
+        snippet: address,
+      ),
+    );
+
+    setState(() {
+      markers.clear();
+      markers.add(marker);
+    });
   }
 }

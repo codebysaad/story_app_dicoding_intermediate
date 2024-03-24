@@ -20,11 +20,8 @@ LoginResponse _$LoginResponseFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$LoginResponse {
-  @JsonKey(name: "error")
   bool get error => throw _privateConstructorUsedError;
-  @JsonKey(name: "message")
   String get message => throw _privateConstructorUsedError;
-  @JsonKey(name: "loginResult")
   LoginData get loginData => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -39,10 +36,7 @@ abstract class $LoginResponseCopyWith<$Res> {
           LoginResponse value, $Res Function(LoginResponse) then) =
       _$LoginResponseCopyWithImpl<$Res, LoginResponse>;
   @useResult
-  $Res call(
-      {@JsonKey(name: "error") bool error,
-      @JsonKey(name: "message") String message,
-      @JsonKey(name: "loginResult") LoginData loginData});
+  $Res call({bool error, String message, LoginData loginData});
 
   $LoginDataCopyWith<$Res> get loginData;
 }
@@ -97,10 +91,7 @@ abstract class _$$LoginResponseImplCopyWith<$Res>
       __$$LoginResponseImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call(
-      {@JsonKey(name: "error") bool error,
-      @JsonKey(name: "message") String message,
-      @JsonKey(name: "loginResult") LoginData loginData});
+  $Res call({bool error, String message, LoginData loginData});
 
   @override
   $LoginDataCopyWith<$Res> get loginData;
@@ -142,21 +133,16 @@ class __$$LoginResponseImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$LoginResponseImpl implements _LoginResponse {
   const _$LoginResponseImpl(
-      {@JsonKey(name: "error") required this.error,
-      @JsonKey(name: "message") required this.message,
-      @JsonKey(name: "loginResult") required this.loginData});
+      {required this.error, required this.message, required this.loginData});
 
   factory _$LoginResponseImpl.fromJson(Map<String, dynamic> json) =>
       _$$LoginResponseImplFromJson(json);
 
   @override
-  @JsonKey(name: "error")
   final bool error;
   @override
-  @JsonKey(name: "message")
   final String message;
   @override
-  @JsonKey(name: "loginResult")
   final LoginData loginData;
 
   @override
@@ -195,22 +181,18 @@ class _$LoginResponseImpl implements _LoginResponse {
 
 abstract class _LoginResponse implements LoginResponse {
   const factory _LoginResponse(
-          {@JsonKey(name: "error") required final bool error,
-          @JsonKey(name: "message") required final String message,
-          @JsonKey(name: "loginResult") required final LoginData loginData}) =
-      _$LoginResponseImpl;
+      {required final bool error,
+      required final String message,
+      required final LoginData loginData}) = _$LoginResponseImpl;
 
   factory _LoginResponse.fromJson(Map<String, dynamic> json) =
       _$LoginResponseImpl.fromJson;
 
   @override
-  @JsonKey(name: "error")
   bool get error;
   @override
-  @JsonKey(name: "message")
   String get message;
   @override
-  @JsonKey(name: "loginResult")
   LoginData get loginData;
   @override
   @JsonKey(ignore: true)

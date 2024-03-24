@@ -17,12 +17,12 @@ class ApiServices {
   Future<GeneralResponse> register(String name, String email, String password) async {
     final url = Uri.parse('$baseUrl/register');
     final response = await client.post(
-        url,
-        body: <String, String>{
-          'name': name,
-          'email': email,
-          'password': password
-        },
+      url,
+      body: jsonEncode({
+        'name': name,
+        'email': email,
+        'password': password,
+      }),
     );
     if (response.statusCode == 201) {
       return GeneralResponse.fromJson(json.decode(response.body));
@@ -35,10 +35,10 @@ class ApiServices {
     final url = Uri.parse('$baseUrl/login');
     final response = await client.post(
       url,
-      body: <String, String>{
+      body: jsonEncode({
         'email': email,
-        'password': password
-      },
+        'password': password,
+      }),
     );
     if (response.statusCode == 200) {
       return LoginResponse.fromJson(json.decode(response.body));
@@ -47,9 +47,8 @@ class ApiServices {
     }
   }
 
-  Future<StoriesResponse> getAllStories(String token) async {
-    final url = Uri.parse('$baseUrl/stories?location=0');
-    // final url = Uri.parse('$baseUrl/stories?page=$page&size=$size&location=1');
+  Future<StoriesResponse> getAllStories(String token, [int pageItem = 1, int sizeItem = 10]) async {
+    final url = Uri.parse('$baseUrl/stories?page=$pageItem&size=$sizeItem&location=0');
     final response = await client.get(
       url,
       headers: {

@@ -20,11 +20,8 @@ StoriesResponse _$StoriesResponseFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$StoriesResponse {
-  @JsonKey(name: "error")
   bool get error => throw _privateConstructorUsedError;
-  @JsonKey(name: "message")
   String get message => throw _privateConstructorUsedError;
-  @JsonKey(name: "listStory")
   List<DataStories> get listStory => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -39,10 +36,7 @@ abstract class $StoriesResponseCopyWith<$Res> {
           StoriesResponse value, $Res Function(StoriesResponse) then) =
       _$StoriesResponseCopyWithImpl<$Res, StoriesResponse>;
   @useResult
-  $Res call(
-      {@JsonKey(name: "error") bool error,
-      @JsonKey(name: "message") String message,
-      @JsonKey(name: "listStory") List<DataStories> listStory});
+  $Res call({bool error, String message, List<DataStories> listStory});
 }
 
 /// @nodoc
@@ -87,10 +81,7 @@ abstract class _$$StoriesResponseImplCopyWith<$Res>
       __$$StoriesResponseImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call(
-      {@JsonKey(name: "error") bool error,
-      @JsonKey(name: "message") String message,
-      @JsonKey(name: "listStory") List<DataStories> listStory});
+  $Res call({bool error, String message, List<DataStories> listStory});
 }
 
 /// @nodoc
@@ -129,23 +120,20 @@ class __$$StoriesResponseImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$StoriesResponseImpl implements _StoriesResponse {
   const _$StoriesResponseImpl(
-      {@JsonKey(name: "error") required this.error,
-      @JsonKey(name: "message") required this.message,
-      @JsonKey(name: "listStory") required final List<DataStories> listStory})
+      {required this.error,
+      required this.message,
+      required final List<DataStories> listStory})
       : _listStory = listStory;
 
   factory _$StoriesResponseImpl.fromJson(Map<String, dynamic> json) =>
       _$$StoriesResponseImplFromJson(json);
 
   @override
-  @JsonKey(name: "error")
   final bool error;
   @override
-  @JsonKey(name: "message")
   final String message;
   final List<DataStories> _listStory;
   @override
-  @JsonKey(name: "listStory")
   List<DataStories> get listStory {
     if (_listStory is EqualUnmodifiableListView) return _listStory;
     // ignore: implicit_dynamic_type
@@ -190,22 +178,18 @@ class _$StoriesResponseImpl implements _StoriesResponse {
 
 abstract class _StoriesResponse implements StoriesResponse {
   const factory _StoriesResponse(
-      {@JsonKey(name: "error") required final bool error,
-      @JsonKey(name: "message") required final String message,
-      @JsonKey(name: "listStory")
+      {required final bool error,
+      required final String message,
       required final List<DataStories> listStory}) = _$StoriesResponseImpl;
 
   factory _StoriesResponse.fromJson(Map<String, dynamic> json) =
       _$StoriesResponseImpl.fromJson;
 
   @override
-  @JsonKey(name: "error")
   bool get error;
   @override
-  @JsonKey(name: "message")
   String get message;
   @override
-  @JsonKey(name: "listStory")
   List<DataStories> get listStory;
   @override
   @JsonKey(ignore: true)

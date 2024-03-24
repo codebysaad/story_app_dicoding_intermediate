@@ -66,11 +66,6 @@ class _MapStoriesTabState extends State<MapStoriesTab> {
           return LoadingAnimation(
             message: AppLocalizations.of(context)!.loading,
           );
-        case StateActivity.noData:
-          return TextMessage(
-            image: 'assets/images/empty-data.png',
-            message: AppLocalizations.of(context)?.emptyData ?? 'Empty Data',
-          );
         case StateActivity.hasData:
           return Center(
             child: Stack(

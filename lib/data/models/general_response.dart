@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:story_app/utils/typedef.dart';
 
 part 'general_response.g.dart';
 
@@ -12,7 +13,7 @@ class GeneralResponse{
     required this.message,
   });
 
-  factory GeneralResponse.fromJson(Map<String, dynamic> json) => _$GeneralResponseFromJson(json);
+  factory GeneralResponse.fromJson(DataMap json) => _$GeneralResponseFromJson(json);
 
-  Map<String, dynamic> toJson() => _$GeneralResponseToJson(this);
+  DataMap toJson() => _$GeneralResponseToJson(this);
 }

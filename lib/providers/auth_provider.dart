@@ -15,18 +15,23 @@ class AuthProvider with ChangeNotifier {
   AuthProvider({required this.apiServices, required this.preferenceHelper});
 
   late LoginResponse _loginResponse;
+
   LoginResponse get loginResponse => _loginResponse;
 
   late GeneralResponse _registerResponse;
+
   GeneralResponse get registerResponse => _registerResponse;
 
-  late StateActivity _state;
+  StateActivity _state = StateActivity.init;
+
   StateActivity get state => _state;
 
   bool _isLoading = false;
+
   bool get isLoading => _isLoading;
 
   bool _isLoggedIn = false;
+
   bool get isLoggedIn => _isLoggedIn;
 
   void clear() {
@@ -35,6 +40,7 @@ class AuthProvider with ChangeNotifier {
   }
 
   String _message = '';
+
   String get message => _message;
 
   Future<void> init() async {
@@ -44,31 +50,20 @@ class AuthProvider with ChangeNotifier {
   }
 
   Future<dynamic> login(
-      {
-        required String email, required String password}) async {
+      {required String email, required String password}) async {
     try {
       _isLoading = true;
       _state = StateActivity.loading;
       notifyListeners();
 
       final authenticating = await apiServices.login(email, password);
-      if (authenticating.error) {
-        _isLoading = false;
-        _state = StateActivity.noData;
-        _message = authenticating.message;
-        log(message);
-        notifyListeners();
 
-        return _loginResponse = authenticating;
-      } else {
-        _isLoading = false;
-        _state = StateActivity.hasData;
-        _message = authenticating.message;
-        log(authenticating.loginData.toString());
-        notifyListeners();
-
-        return _loginResponse = authenticating;
-      }
+      _loginResponse = authenticating;
+      _isLoading = false;
+      _state = StateActivity.hasData;
+      _message = authenticating.message;
+      log(authenticating.loginData.toString());
+      notifyListeners();
     } catch (e) {
       _isLoading = false;
       _state = StateActivity.error;
@@ -79,28 +74,21 @@ class AuthProvider with ChangeNotifier {
   }
 
   Future<dynamic> register(
-      {required String name, required String email, required String password}) async {
+      {required String name,
+      required String email,
+      required String password}) async {
     try {
       _isLoading = true;
       _state = StateActivity.loading;
       notifyListeners();
 
       final registering = await apiServices.register(name, email, password);
-      if (registering.error) {
-        _isLoading = false;
-        _state = StateActivity.noData;
-        _message = registering.message;
-        notifyListeners();
-        log('Return Error: ${registering.message}');
-        return _registerResponse = registering;
-      } else {
-        _isLoading = false;
-        _state = StateActivity.hasData;
-        _message = registering.message;
-        notifyListeners();
-        log('Return Success: ${registering.message}');
-        return _registerResponse = registering;
-      }
+      _registerResponse = registering;
+      _isLoading = false;
+      _state = StateActivity.hasData;
+      _message = registering.message;
+      notifyListeners();
+      log('Return Success: ${registering.message}');
     } catch (e) {
       _isLoading = false;
       _state = StateActivity.error;

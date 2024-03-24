@@ -20,11 +20,8 @@ MapsResponse _$MapsResponseFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$MapsResponse {
-  @JsonKey(name: "error")
   bool get error => throw _privateConstructorUsedError;
-  @JsonKey(name: "message")
   String get message => throw _privateConstructorUsedError;
-  @JsonKey(name: "listStory")
   List<DataMapsStories> get listStory => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -39,10 +36,7 @@ abstract class $MapsResponseCopyWith<$Res> {
           MapsResponse value, $Res Function(MapsResponse) then) =
       _$MapsResponseCopyWithImpl<$Res, MapsResponse>;
   @useResult
-  $Res call(
-      {@JsonKey(name: "error") bool error,
-      @JsonKey(name: "message") String message,
-      @JsonKey(name: "listStory") List<DataMapsStories> listStory});
+  $Res call({bool error, String message, List<DataMapsStories> listStory});
 }
 
 /// @nodoc
@@ -87,10 +81,7 @@ abstract class _$$MapsResponseImplCopyWith<$Res>
       __$$MapsResponseImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call(
-      {@JsonKey(name: "error") bool error,
-      @JsonKey(name: "message") String message,
-      @JsonKey(name: "listStory") List<DataMapsStories> listStory});
+  $Res call({bool error, String message, List<DataMapsStories> listStory});
 }
 
 /// @nodoc
@@ -129,9 +120,8 @@ class __$$MapsResponseImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$MapsResponseImpl implements _MapsResponse {
   const _$MapsResponseImpl(
-      {@JsonKey(name: "error") required this.error,
-      @JsonKey(name: "message") required this.message,
-      @JsonKey(name: "listStory")
+      {required this.error,
+      required this.message,
       required final List<DataMapsStories> listStory})
       : _listStory = listStory;
 
@@ -139,14 +129,11 @@ class _$MapsResponseImpl implements _MapsResponse {
       _$$MapsResponseImplFromJson(json);
 
   @override
-  @JsonKey(name: "error")
   final bool error;
   @override
-  @JsonKey(name: "message")
   final String message;
   final List<DataMapsStories> _listStory;
   @override
-  @JsonKey(name: "listStory")
   List<DataMapsStories> get listStory {
     if (_listStory is EqualUnmodifiableListView) return _listStory;
     // ignore: implicit_dynamic_type
@@ -190,22 +177,18 @@ class _$MapsResponseImpl implements _MapsResponse {
 
 abstract class _MapsResponse implements MapsResponse {
   const factory _MapsResponse(
-      {@JsonKey(name: "error") required final bool error,
-      @JsonKey(name: "message") required final String message,
-      @JsonKey(name: "listStory")
+      {required final bool error,
+      required final String message,
       required final List<DataMapsStories> listStory}) = _$MapsResponseImpl;
 
   factory _MapsResponse.fromJson(Map<String, dynamic> json) =
       _$MapsResponseImpl.fromJson;
 
   @override
-  @JsonKey(name: "error")
   bool get error;
   @override
-  @JsonKey(name: "message")
   String get message;
   @override
-  @JsonKey(name: "listStory")
   List<DataMapsStories> get listStory;
   @override
   @JsonKey(ignore: true)

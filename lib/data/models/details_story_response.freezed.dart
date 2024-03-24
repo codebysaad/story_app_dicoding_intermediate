@@ -20,11 +20,8 @@ DetailsStoryResponse _$DetailsStoryResponseFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$DetailsStoryResponse {
-  @JsonKey(name: "error")
   bool get error => throw _privateConstructorUsedError;
-  @JsonKey(name: "message")
   String get message => throw _privateConstructorUsedError;
-  @JsonKey(name: "story")
   StoryDetails get story => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -39,10 +36,7 @@ abstract class $DetailsStoryResponseCopyWith<$Res> {
           $Res Function(DetailsStoryResponse) then) =
       _$DetailsStoryResponseCopyWithImpl<$Res, DetailsStoryResponse>;
   @useResult
-  $Res call(
-      {@JsonKey(name: "error") bool error,
-      @JsonKey(name: "message") String message,
-      @JsonKey(name: "story") StoryDetails story});
+  $Res call({bool error, String message, StoryDetails story});
 
   $StoryDetailsCopyWith<$Res> get story;
 }
@@ -98,10 +92,7 @@ abstract class _$$DetailsStoryResponseImplCopyWith<$Res>
       __$$DetailsStoryResponseImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call(
-      {@JsonKey(name: "error") bool error,
-      @JsonKey(name: "message") String message,
-      @JsonKey(name: "story") StoryDetails story});
+  $Res call({bool error, String message, StoryDetails story});
 
   @override
   $StoryDetailsCopyWith<$Res> get story;
@@ -143,21 +134,16 @@ class __$$DetailsStoryResponseImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$DetailsStoryResponseImpl implements _DetailsStoryResponse {
   const _$DetailsStoryResponseImpl(
-      {@JsonKey(name: "error") required this.error,
-      @JsonKey(name: "message") required this.message,
-      @JsonKey(name: "story") required this.story});
+      {required this.error, required this.message, required this.story});
 
   factory _$DetailsStoryResponseImpl.fromJson(Map<String, dynamic> json) =>
       _$$DetailsStoryResponseImplFromJson(json);
 
   @override
-  @JsonKey(name: "error")
   final bool error;
   @override
-  @JsonKey(name: "message")
   final String message;
   @override
-  @JsonKey(name: "story")
   final StoryDetails story;
 
   @override
@@ -197,22 +183,18 @@ class _$DetailsStoryResponseImpl implements _DetailsStoryResponse {
 
 abstract class _DetailsStoryResponse implements DetailsStoryResponse {
   const factory _DetailsStoryResponse(
-          {@JsonKey(name: "error") required final bool error,
-          @JsonKey(name: "message") required final String message,
-          @JsonKey(name: "story") required final StoryDetails story}) =
-      _$DetailsStoryResponseImpl;
+      {required final bool error,
+      required final String message,
+      required final StoryDetails story}) = _$DetailsStoryResponseImpl;
 
   factory _DetailsStoryResponse.fromJson(Map<String, dynamic> json) =
       _$DetailsStoryResponseImpl.fromJson;
 
   @override
-  @JsonKey(name: "error")
   bool get error;
   @override
-  @JsonKey(name: "message")
   String get message;
   @override
-  @JsonKey(name: "story")
   StoryDetails get story;
   @override
   @JsonKey(ignore: true)

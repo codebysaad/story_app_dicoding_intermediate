@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:story_app/utils/typedef.dart';
 
 part 'login_data.g.dart';
 part 'login_data.freezed.dart';
@@ -11,5 +12,5 @@ class LoginData with _$LoginData {
     required String token,
 }) = _LoginData;
 
-  factory LoginData.fromJson(Map<String, dynamic> json) => _$LoginDataFromJson(json);
+  factory LoginData.fromJson(DataMap json) => _$LoginDataFromJson(json);
 }

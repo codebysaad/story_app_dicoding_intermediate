@@ -1,1 +1,1 @@
-enum StateActivity { init, loading, noData, hasData, error }
+enum StateActivity { init, loading, hasData, error }

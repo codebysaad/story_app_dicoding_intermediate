@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:story_app/providers/stories_provider.dart';
@@ -32,7 +33,8 @@ class _DetailsPageState extends State<DetailsPage> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() => context.read<StoriesProvider>().getDetailStory(id: widget.id));
+    Future.microtask(
+        () => context.read<StoriesProvider>().getDetailStory(id: widget.id));
   }
 
   @override
@@ -67,10 +69,12 @@ class _DetailsPageState extends State<DetailsPage> {
               switch (provider.state) {
                 case StateActivity.loading:
                   return LoadingAnimation(
-                    message: AppLocalizations.of(context)?.loading ?? 'Loading...',
+                    message:
+                        AppLocalizations.of(context)?.loading ?? 'Loading...',
                   );
                 case StateActivity.hasData:
-                  String timeString = provider.detailsStoryResponse.story.createdAt.toString();
+                  String timeString =
+                      provider.detailsStoryResponse.story.createdAt.toString();
                   String locale = Localizations.localeOf(context).languageCode;
                   DateTime dateTime = DateTime.parse(timeString).toLocal();
                   String dayStory = DateFormat.EEEE(locale).format(dateTime);
@@ -117,7 +121,8 @@ class _DetailsPageState extends State<DetailsPage> {
                                 child: Text(
                                   provider.detailsStoryResponse.story.name,
                                   style: const TextStyle(
-                                      fontSize: 18, fontWeight: FontWeight.bold),
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold),
                                 ),
                               ),
                               const SizedBox(
@@ -161,7 +166,8 @@ class _DetailsPageState extends State<DetailsPage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                AppLocalizations.of(context)?.description ?? 'Description',
+                                AppLocalizations.of(context)?.description ??
+                                    'Description',
                                 style: const TextStyle(
                                     fontSize: 16, fontWeight: FontWeight.bold),
                               ),
@@ -174,18 +180,39 @@ class _DetailsPageState extends State<DetailsPage> {
                             ],
                           ),
                         ),
+                        const SizedBox(height: 8),
+                        if (provider.detailsStoryResponse.story.lat != null && provider.detailsStoryResponse.story.lon != null)
+                          Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: Colors.blueAccent.withOpacity(.6),
+                                width: 2,
+                              ),
+                            ),
+                            height: 250,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: GoogleMap(
+                                initialCameraPosition: CameraPosition(
+                                  target: LatLng(provider.detailsStoryResponse.story.lat!, provider.detailsStoryResponse.story.lon!),
+                                  zoom: 15,
+                                ),
+                                onMapCreated: (controller) {
+                                  provider.defineMarker(LatLng(provider.detailsStoryResponse.story.lat!, provider.detailsStoryResponse.story.lon!));
+                                },
+                                markers: provider.markers,
+                              ),
+                            ),
+                          ),
                       ],
                     ),
-                  );
-                case StateActivity.noData:
-                  return TextMessage(
-                    image: 'assets/images/empty-data.png',
-                    message: AppLocalizations.of(context)?.emptyData ?? 'Empty Data',
                   );
                 case StateActivity.error:
                   return TextMessage(
                     image: 'assets/images/no-internet.png',
-                    message: AppLocalizations.of(context)?.lostConnection ?? 'Lost Connection',
+                    message: AppLocalizations.of(context)?.lostConnection ??
+                        'Lost Connection',
                     titleButton: AppLocalizations.of(context)!.refresh,
                     onPressed: () {
                       provider.getDetailStory(id: widget.id);

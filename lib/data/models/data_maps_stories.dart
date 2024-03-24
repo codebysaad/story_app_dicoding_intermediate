@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:story_app/utils/typedef.dart';
 
 part 'data_maps_stories.g.dart';
 part 'data_maps_stories.freezed.dart';
@@ -15,5 +16,5 @@ class DataMapsStories with _$DataMapsStories {
     required double lon,
   }) = _DataMapsStories;
 
-  factory DataMapsStories.fromJson(Map<String, dynamic> json) => _$DataMapsStoriesFromJson(json);
+  factory DataMapsStories.fromJson(DataMap json) => _$DataMapsStoriesFromJson(json);
 }

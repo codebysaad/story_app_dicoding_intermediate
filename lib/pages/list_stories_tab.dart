@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
@@ -23,14 +24,41 @@ class ListStoriesTab extends StatefulWidget {
 }
 
 class _ListStoriesTabState extends State<ListStoriesTab> {
+  final ScrollController scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<StoriesProvider>(context, listen: false).getAllStories();
+    final storiesProvider = context.read<StoriesProvider>();
+    scrollController.addListener(() {
+      if (scrollController.position.pixels >=
+          scrollController.position.maxScrollExtent) {
+        if (storiesProvider.pageItems != null) {
+          storiesProvider.getAllStories();
+        }
+      }
     });
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   storiesProvider.getAllStories();
+    // });
+    Future.microtask(() async => storiesProvider.getAllStories());
   }
+
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
+  }
+
+  final loading = SpinKitFadingCircle(
+    itemBuilder: (BuildContext context, int index) {
+      return DecoratedBox(
+        decoration: BoxDecoration(
+          color: index.isEven ? Colors.red : Colors.green,
+        ),
+      );
+    },
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -84,6 +112,9 @@ class _ListStoriesTabState extends State<ListStoriesTab> {
         child: const Icon(Icons.add_box, color: Colors.white),
         onPressed: () {
           context.goNamed(AppRoutePaths.addStoryRouteName);
+          setState(() {
+            context.read<StoriesProvider>().getAllStories();
+          });
         },
       ),
     );
@@ -96,28 +127,31 @@ class _ListStoriesTabState extends State<ListStoriesTab> {
           message: AppLocalizations.of(context)?.loggingOut ?? 'Logging Out...',
         );
       } else {
-        switch (storiesProvider.state) {
+        final state = storiesProvider.state;
+        switch(state){
+          case StateActivity.init:
+            return const SizedBox();
           case StateActivity.loading:
             return LoadingAnimation(
               message: AppLocalizations.of(context)!.loading,
             );
           case StateActivity.hasData:
+            final stories = storiesProvider.listStories;
             return ListView.builder(
+              controller: scrollController,
               padding: const EdgeInsets.symmetric(
                 horizontal: 16,
                 vertical: 8,
               ),
-              itemCount: storiesProvider.storiesResponse.listStory.length,
+              itemCount: stories.length + (storiesProvider.pageItems != null ? 1 : 0),
               itemBuilder: (_, index) {
-                final stories = storiesProvider.storiesResponse.listStory[index];
-                return StoryItem(story: stories);
+                if (index == stories.length && storiesProvider.pageItems != null) {
+                  return loading;
+                }
+                // final stories = storiesProvider.storiesResponse.listStory[index];
+                final story = stories[index];
+                return StoryItem(story: story);
               },
-            );
-          case StateActivity.noData:
-            return TextMessage(
-              image: 'assets/images/empty-data.png',
-              message:
-              AppLocalizations.of(context)?.emptyData ?? 'Empty Data',
             );
           case StateActivity.error:
             return TextMessage(
@@ -127,8 +161,6 @@ class _ListStoriesTabState extends State<ListStoriesTab> {
               titleButton: AppLocalizations.of(context)!.refresh,
               onPressed: () => storiesProvider.getAllStories(),
             );
-          default:
-            return const SizedBox();
         }
       }
     });

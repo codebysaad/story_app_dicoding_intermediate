@@ -15,6 +15,7 @@ import 'package:story_app/pages/profile_page.dart';
 import 'package:story_app/pages/register_page.dart';
 import 'package:story_app/providers/auth_provider.dart';
 import 'package:story_app/providers/localization_provider.dart';
+import 'package:story_app/providers/location_provider.dart';
 import 'package:story_app/providers/preference_provider.dart';
 import 'package:story_app/providers/stories_provider.dart';
 import 'package:http/http.dart' as http;
@@ -58,7 +59,8 @@ class _MyApp extends State<MyApp> {
         ChangeNotifierProvider.value(value: authProvider),
         ChangeNotifierProvider.value(value: storiesProvider),
         ChangeNotifierProvider.value(value: preferenceProvider),
-        ChangeNotifierProvider.value(value: LocalizationProvider(),),
+        ChangeNotifierProvider.value(value: LocalizationProvider()),
+        ChangeNotifierProvider.value(value: LocationProvider())
       ],
       child: FutureBuilder<void>(
         future: authProvider.init(),
