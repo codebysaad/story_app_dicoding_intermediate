@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:story_app/layouts/custom_text_field.dart';
 import 'package:story_app/layouts/password_text_field.dart';
 import 'package:story_app/providers/auth_provider.dart';
+import 'package:story_app/utils/state_activity.dart';
 
 import '../utils/common.dart';
 import '../utils/platform_widget.dart';
@@ -180,7 +181,7 @@ class _RegisterPage extends State<RegisterPage> {
                     Consumer<AuthProvider>(builder: (context, provider, child) {
                       WidgetsBinding.instance.addPostFrameCallback((_) {
                         if (provider.message != "") {
-                          if (provider.registerResponse.error) {
+                          if (provider.state == const StateActivityError()) {
                             Fluttertoast.showToast(
                                 msg: provider.message,
                                 toastLength: Toast.LENGTH_SHORT,
@@ -189,7 +190,6 @@ class _RegisterPage extends State<RegisterPage> {
                                 backgroundColor: Colors.red,
                                 textColor: Colors.white,
                                 fontSize: 16.0);
-                            provider.clear();
                           } else {
                             Fluttertoast.showToast(
                                 msg: provider.message,
@@ -199,7 +199,6 @@ class _RegisterPage extends State<RegisterPage> {
                                 backgroundColor: Colors.red,
                                 textColor: Colors.white,
                                 fontSize: 16.0);
-                            provider.clear();
                             context.pop();
                           }
                         }
@@ -219,15 +218,17 @@ class _RegisterPage extends State<RegisterPage> {
                                           email: _emailController.text,
                                           password: _passwordController.text);
                                     } else {
-                                      Fluttertoast.showToast(
-                                          msg: AppLocalizations.of(context)!
-                                              .passwordNotMatch,
-                                          toastLength: Toast.LENGTH_SHORT,
-                                          gravity: ToastGravity.CENTER,
-                                          timeInSecForIosWeb: 1,
-                                          backgroundColor: Colors.red,
-                                          textColor: Colors.white,
-                                          fontSize: 16.0);
+                                      if(!context.mounted) {
+                                        final message = AppLocalizations.of(context)?.passwordNotMatch;
+                                        Fluttertoast.showToast(
+                                            msg: message!,
+                                            toastLength: Toast.LENGTH_SHORT,
+                                            gravity: ToastGravity.CENTER,
+                                            timeInSecForIosWeb: 1,
+                                            backgroundColor: Colors.red,
+                                            textColor: Colors.white,
+                                            fontSize: 16.0);
+                                      }
                                     }
                                   }
                                 },

@@ -50,15 +50,11 @@ class PreferencesHelper {
     preferences.setString(profileName, value);
   }
 
-  Future<bool> logout() async {
+  Future<void> logout() async {
     final preferences = await SharedPreferences.getInstance();
-    await Future.delayed(const Duration(seconds: 2));
-    return preferences.setBool(stateLogin, false);
-  }
-
-  Future<bool> deleteUser() async {
-    final preferences = await SharedPreferences.getInstance();
-    await Future.delayed(const Duration(seconds: 2));
-    return preferences.setString(authToken, "");
+    await preferences.remove(authToken);
+    await preferences.remove(profileName);
+    await preferences.remove(stateLogin);
+    await preferences.setBool(stateLogin, false);
   }
 }

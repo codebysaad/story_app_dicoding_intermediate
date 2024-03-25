@@ -42,8 +42,8 @@ class CustomPopMenu extends StatelessWidget {
                   child: Text(AppLocalizations.of(context)!.yes),
                   onPressed: () async {
                     context.pop();
-                    final authRead = context.read<AuthProvider>();
-                    final result = await authRead.logout();
+                    final authProvider = context.read<AuthProvider>();
+                    final result = await authProvider.logout();
                     if(context.mounted){
                       Fluttertoast.showToast(
                           msg: AppLocalizations.of(context)!.logoutSuccess,

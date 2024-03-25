@@ -1,15 +1,13 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
-import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:story_app/data/models/details_story_response.dart';
 import 'package:story_app/data/models/general_response.dart';
 import 'package:story_app/data/models/login_response.dart';
 import 'package:story_app/data/models/maps_response.dart';
 import 'package:story_app/data/models/stories_response.dart';
-
-import '../../utils/typedef.dart';
 
 class ApiServices {
   final http.Client client;
@@ -19,52 +17,35 @@ class ApiServices {
 
   Future<GeneralResponse> register(String name, String email, String password) async {
     final url = Uri.parse('$baseUrl/register');
-    final response = await client.post(
-      url,
-      body: jsonEncode({
-        'name': name,
-        'email': email,
-        'password': password,
-      }),
-    );
-    if (response.statusCode == 201) {
-      return GeneralResponse.fromJson(json.decode(response.body));
-    } else {
-      throw Exception('Failed to load data');
-    }
-  }
-
-  Future<DataMap?> newLogin(BuildContext context, String email, String password) async {
-    final url = Uri.parse('$baseUrl/login');
-    try {
-      final response = await http.post(
+    try{
+      final response = await client.post(
         url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
+        body: <String, String>{
+          'name': name,
           'email': email,
-          'password': password,
-        }),
+          'password': password
+        },
       );
-      return jsonDecode(response.body) as DataMap;
-    } catch (e) {
-      if (!context.mounted) return null;
-      throw const HttpException('Failed to load data');
+      return GeneralResponse.fromJson(json.decode(response.body));
+    }catch(e){
+      throw Exception('Error: $e');
     }
   }
 
   Future<LoginResponse> login(String email, String password) async {
     final url = Uri.parse('$baseUrl/login');
-    final response = await client.post(
-      url,
-      body: jsonEncode({
-        'email': email,
-        'password': password,
-      }),
-    );
-    if (response.statusCode == 200) {
+    try{
+      final response = await client.post(
+        url,
+        body: <String, String>{
+          'email': email,
+          'password': password
+        },
+      );
+      log('ApiLogin: ${response.body}');
       return LoginResponse.fromJson(json.decode(response.body));
-    } else {
-      throw const HttpException('Failed to load data');
+    }catch(e){
+      throw Exception('Error: $e');
     }
   }
 

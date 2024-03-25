@@ -1,17 +1,15 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'dart:async';
 import 'package:story_app/data/models/general_response.dart';
+import 'package:story_app/data/models/login_data.dart';
 import 'package:story_app/data/models/login_response.dart';
 import 'package:story_app/data/rest/api_services.dart';
 import 'package:story_app/providers/preference_provider.dart';
 import 'package:story_app/utils/state_activity.dart';
-import 'package:story_app/utils/typedef.dart';
 
 import '../data/preference/preferences_helper.dart';
-import '../routes/app_route_paths.dart';
 
 class AuthProvider with ChangeNotifier {
   final ApiServices apiServices;
@@ -23,13 +21,11 @@ class AuthProvider with ChangeNotifier {
 
   LoginResponse get loginResponse => _loginResponse;
 
-  LoginResponse? loginState;
-
   late GeneralResponse _registerResponse;
 
   GeneralResponse get registerResponse => _registerResponse;
 
-  StateActivity _state = const StateActivity.init();
+  StateActivity _state = const StateActivityInit();
 
   StateActivity get state => _state;
 
@@ -56,102 +52,101 @@ class AuthProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> newLogin(BuildContext context, {required String email, required String password}) async {
-    _isLoading = true;
-    notifyListeners();
-
-    final authenticating = await apiServices.newLogin(context, email, password);
-
-    if(authenticating!.isEmpty) {
-      _isLoading = false;
-      // _message = authenticating.message;
-      notifyListeners();
-      return;
-    }
-
-    loginState = LoginResponse.fromJson(authenticating);
-
-    if (!context.mounted) return;
-    if (authenticating.containsValue('success')) {
-      final preference = context.read<PreferenceProvider>();
-      String token = loginState!.loginData.token;
-      String name = loginState!.loginData.name;
-      preference.saveToken(token, true, name);
-      context.go(AppRoutePaths.rootRouteName);
-      _isLoading = false;
-    } else {
-      _message = authenticating['message'];
-      _isLoading = false;
-    }
-
-    _isLoading = false;
-    notifyListeners();
-  }
-
   Future<dynamic> login(BuildContext context,
       {required String email, required String password}) async {
-    try {
       _isLoading = true;
-      // _state = const StateActivity.loading();
+      _state = const StateActivityLoading();
       notifyListeners();
 
       final authenticating = await apiServices.login(email, password);
 
-      // _loginResponse = authenticating;
-      if (!context.mounted) return;
-      final preference = context.read<PreferenceProvider>();
-      String token = loginState!.loginData.token;
-      String name = loginState!.loginData.name;
-      preference.saveToken(token, true, name);
-      context.go(AppRoutePaths.rootRouteName);
-      _isLoading = false;
+      if(authenticating.message == 'success'){
+        _loginResponse = authenticating;
+        log('Login: $_loginResponse');
+        _isLoading = false;
+        _isLoggedIn = true;
+        _state = const StateActivityHasData();
+        _message = authenticating.message;
+        if (!context.mounted) return;
+        await saveCredential(context, authenticating.loginData!);
+        log(authenticating.loginData.toString());
+        notifyListeners();
+      } else {
+        _isLoading = false;
+        _isLoggedIn = false;
+        _state = const StateActivityError();
+        _message = authenticating.message;
+        log(authenticating.loginData.toString());
+        notifyListeners();
+      }
+  }
 
-      loginState = authenticating;
+  Future<dynamic> loginBackup(
+      {required String email, required String password}) async {
+    try {
+      _isLoading = true;
+      _state = const StateActivityLoading();
+      notifyListeners();
+
+      final authenticating = await apiServices.login(email, password);
+
+      _loginResponse = authenticating;
+      log('Login: $_loginResponse');
       _isLoading = false;
-      // _state = const StateActivity.hasData();
+      _state = const StateActivityHasData();
       _message = authenticating.message;
       log(authenticating.loginData.toString());
       notifyListeners();
     } catch (e) {
       _isLoading = false;
-      // _state = const StateActivity.error();
+      _state = const StateActivityError();
       _message = 'Error --> $e';
       notifyListeners();
+      return _message;
     }
   }
 
   Future<dynamic> register(
       {required String name,
-      required String email,
-      required String password}) async {
-    try {
+        required String email,
+        required String password}) async {
+
       _isLoading = true;
-      _state = const StateActivity.loading();
+      _state = const StateActivityLoading();
       notifyListeners();
 
       final registering = await apiServices.register(name, email, password);
-      _registerResponse = registering;
-      _isLoading = false;
-      _state = const StateActivity.hasData();
-      _message = registering.message;
-      notifyListeners();
-      log('Return Success: ${registering.message}');
-    } catch (e) {
-      _isLoading = false;
-      _state = const StateActivity.error();
-      log('Return Catch: $e');
-      _message = 'Error --> $e';
-      notifyListeners();
-    }
+
+      if(registering.error){
+        _isLoading = false;
+        _state = const StateActivityError();
+        _message = 'Error --> ${registering.message}';
+        notifyListeners();
+        log('Return Catch: ${registering.message}');
+      } else {
+        _registerResponse = registering;
+        _isLoading = false;
+        _state = const StateActivityHasData();
+        _message = registering.message;
+        notifyListeners();
+        log('Return Success: ${registering.message}');
+      }
+
   }
+
+  Future<void> saveCredential(BuildContext context, LoginData loginData) async {
+    final preference = context.read<PreferenceProvider>();
+    log('LoginData: $loginData');
+    String token = loginData.token;
+    String name = loginData.name;
+    preference.saveToken(token, true, name);
+    notifyListeners();
+    }
 
   Future<bool> logout() async {
     _isLoading = true;
     notifyListeners();
-    final logout = await preferenceHelper.logout();
-    if (logout) {
-      await preferenceHelper.deleteUser();
-    }
+    await preferenceHelper.logout();
     _isLoggedIn = await preferenceHelper.isLoggedIn();
     _isLoading = false;
     notifyListeners();

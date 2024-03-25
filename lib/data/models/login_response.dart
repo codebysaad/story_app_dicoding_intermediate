@@ -12,7 +12,7 @@ class LoginResponse with _$LoginResponse{
   const factory LoginResponse({
     required bool error,
     required String message,
-    required LoginData loginData,
+    @JsonKey(name: "loginResult") LoginData? loginData,
 }) = _LoginResponse;
 
   factory LoginResponse.fromJson(DataMap json) => _$LoginResponseFromJson(json);

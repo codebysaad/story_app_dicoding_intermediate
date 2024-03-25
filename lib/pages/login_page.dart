@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:story_app/layouts/custom_text_field.dart';
 import 'package:story_app/providers/preference_provider.dart';
+import 'package:story_app/utils/state_activity.dart';
 
 import '../layouts/password_text_field.dart';
 import '../providers/auth_provider.dart';
@@ -21,15 +22,13 @@ class LoginPage extends StatefulWidget {
   _LoginPage createState() => _LoginPage();
 }
 
-class _LoginPage extends State<LoginPage> with SingleTickerProviderStateMixin {
+class _LoginPage extends State<LoginPage> {
   late final PreferenceProvider preferenceProv;
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool isPasswordVisible = false;
   final formKey = GlobalKey<FormState>();
   bool isPasswdLength8Char = false;
-  late final AnimationController _animationController;
-  late final Animation<AlignmentGeometry> animationGeometry;
 
   @override
   void initState() {
@@ -39,19 +38,10 @@ class _LoginPage extends State<LoginPage> with SingleTickerProviderStateMixin {
       final token = preferenceProv.authToken;
       log('Init state: $token');
     });
-    _animationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 300),
-    );
-    animationGeometry = AlignmentTween(
-      begin: Alignment.centerLeft,
-      end: Alignment.centerRight,
-    ).animate(_animationController);
   }
 
   @override
   void dispose() {
-    _animationController.dispose();
     _emailController.clear();
     _passwordController.clear();
     super.dispose();
@@ -118,7 +108,7 @@ class _LoginPage extends State<LoginPage> with SingleTickerProviderStateMixin {
                               ),
                             ),
                             Text(AppLocalizations.of(context)
-                                    ?.credentialMessage ??
+                                ?.credentialMessage ??
                                 ''),
                           ],
                         ),
@@ -154,11 +144,11 @@ class _LoginPage extends State<LoginPage> with SingleTickerProviderStateMixin {
                               },
                             ),
                             const SizedBox(height: 20),
-                            Consumer2<AuthProvider, PreferenceProvider>(builder:
-                                (context, authProvider, preference, child) {
-                              WidgetsBinding.instance.addPostFrameCallback((_) {
-                                if(authProvider.loginState != null){
-                                  if (authProvider.loginState!.error) {
+                            Consumer2<AuthProvider, PreferenceProvider>(builder: (context, authProvider, preference, child){
+                              WidgetsBinding.instance
+                                  .addPostFrameCallback((_) {
+                                if (authProvider.message != "") {
+                                  if (authProvider.state == const StateActivityError()) {
                                     Fluttertoast.showToast(
                                         msg: authProvider.message,
                                         toastLength: Toast.LENGTH_SHORT,
@@ -178,98 +168,54 @@ class _LoginPage extends State<LoginPage> with SingleTickerProviderStateMixin {
                                         textColor: Colors.white,
                                         fontSize: 16.0);
                                     authProvider.clear();
-                                    String token = authProvider
-                                        .loginState!.loginData.token;
-                                    String name = authProvider
-                                        .loginState!.loginData.name;
-                                    preference.saveToken(token, true, name);
                                     context.go(AppRoutePaths.rootRouteName);
                                   }
                                 }
-                                // if (authProvider.message != "") {
-                                //   if (authProvider.loginResponse.error) {
-                                //     Fluttertoast.showToast(
-                                //         msg: authProvider.message,
-                                //         toastLength: Toast.LENGTH_SHORT,
-                                //         gravity: ToastGravity.CENTER,
-                                //         timeInSecForIosWeb: 1,
-                                //         backgroundColor: Colors.red,
-                                //         textColor: Colors.white,
-                                //         fontSize: 16.0);
-                                //     authProvider.clear();
-                                //   } else {
-                                //     Fluttertoast.showToast(
-                                //         msg: authProvider.message,
-                                //         toastLength: Toast.LENGTH_SHORT,
-                                //         gravity: ToastGravity.CENTER,
-                                //         timeInSecForIosWeb: 1,
-                                //         backgroundColor: Colors.red,
-                                //         textColor: Colors.white,
-                                //         fontSize: 16.0);
-                                //     authProvider.clear();
-                                //     String token = authProvider
-                                //         .loginResponse.loginData.token;
-                                //     String name = authProvider
-                                //         .loginResponse.loginData.name;
-                                //     preference.saveToken(token, true, name);
-                                //     context.go(AppRoutePaths.rootRouteName);
-                                //   }
-                                // }
                               });
                               return authProvider.isLoading
                                   ? loading
-                                  : AlignTransition(
-                                      alignment: animationGeometry,
-                                      child: ElevatedButton(
-                                        onHover: (value) {
-                                          if (_animationController.isAnimating) return;
-
-                                          if (!formKey.currentState!.validate()) {
-                                            _animationController.isCompleted ? _animationController.reverse() : _animationController.forward();
-                                          }
-                                        },
-                                        onPressed: () {
-                                          if (formKey.currentState!
-                                              .validate()) {
-                                            if (_emailController.text.isEmpty ||
-                                                _passwordController
-                                                    .text.isEmpty) {
-                                              Fluttertoast.showToast(
-                                                  msg: AppLocalizations.of(
-                                                          context)!
-                                                      .allFieldRequired,
-                                                  toastLength:
-                                                      Toast.LENGTH_SHORT,
-                                                  gravity: ToastGravity.CENTER,
-                                                  timeInSecForIosWeb: 1,
-                                                  backgroundColor: Colors.red,
-                                                  textColor: Colors.white,
-                                                  fontSize: 16.0);
-                                            } else {
-                                              authProvider.login(context,
-                                                  email: _emailController.text
-                                                      .trim(),
-                                                  password: _passwordController
-                                                      .text
-                                                      .trim());
-                                            }
-                                          }
-                                        },
-                                        style: ElevatedButton.styleFrom(
-                                          shape: const StadiumBorder(),
-                                          padding: const EdgeInsets.symmetric(
-                                              vertical: 16),
-                                          backgroundColor: Colors.blueAccent,
-                                        ),
-                                        child: Text(
-                                          AppLocalizations.of(context)?.login ??
-                                              'Login',
-                                          style: const TextStyle(
-                                              fontSize: 20,
-                                              color: Colors.white),
-                                        ),
-                                      ),
-                                    );
+                                  : ElevatedButton(
+                                onPressed: () {
+                                  if (formKey.currentState!
+                                      .validate()) {
+                                    if (_emailController.text.isEmpty ||
+                                        _passwordController
+                                            .text.isEmpty) {
+                                      Fluttertoast.showToast(
+                                          msg: AppLocalizations.of(
+                                              context)!
+                                              .allFieldRequired,
+                                          toastLength:
+                                          Toast.LENGTH_SHORT,
+                                          gravity: ToastGravity.CENTER,
+                                          timeInSecForIosWeb: 1,
+                                          backgroundColor: Colors.red,
+                                          textColor: Colors.white,
+                                          fontSize: 16.0);
+                                    } else {
+                                      authProvider.login(context,
+                                          email: _emailController.text
+                                              .trim(),
+                                          password: _passwordController
+                                              .text
+                                              .trim());
+                                    }
+                                  }
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  shape: const StadiumBorder(),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 16),
+                                  backgroundColor: Colors.blueAccent,
+                                ),
+                                child: Text(
+                                  AppLocalizations.of(context)?.login ??
+                                      'Login',
+                                  style: const TextStyle(
+                                      fontSize: 20,
+                                      color: Colors.white),
+                                ),
+                              );
                             }),
                           ],
                         ),
@@ -287,7 +233,7 @@ class _LoginPage extends State<LoginPage> with SingleTickerProviderStateMixin {
                                   AppLocalizations.of(context)?.register ??
                                       'Register',
                                   style:
-                                      const TextStyle(color: Colors.blueAccent),
+                                  const TextStyle(color: Colors.blueAccent),
                                 ))
                           ],
                         ),

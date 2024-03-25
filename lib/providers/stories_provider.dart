@@ -134,6 +134,7 @@ class StoriesProvider with ChangeNotifier {
       _state = const StateActivity.error();
       notifyListeners();
       _message = 'Error --> $e';
+      log('Stories: $e');
     }
   }
 
