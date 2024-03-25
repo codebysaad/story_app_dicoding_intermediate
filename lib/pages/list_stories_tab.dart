@@ -14,7 +14,6 @@ import '../providers/stories_provider.dart';
 import '../routes/app_route_paths.dart';
 import '../utils/common.dart';
 import '../utils/platform_widget.dart';
-import '../utils/state_activity.dart';
 
 class ListStoriesTab extends StatefulWidget {
   const ListStoriesTab({super.key});
@@ -38,9 +37,6 @@ class _ListStoriesTabState extends State<ListStoriesTab> {
         }
       }
     });
-    // WidgetsBinding.instance.addPostFrameCallback((_) {
-    //   storiesProvider.getAllStories();
-    // });
     Future.microtask(() async => storiesProvider.getAllStories());
   }
 
@@ -128,40 +124,43 @@ class _ListStoriesTabState extends State<ListStoriesTab> {
         );
       } else {
         final state = storiesProvider.state;
-        switch(state){
-          case StateActivity.init:
-            return const SizedBox();
-          case StateActivity.loading:
-            return LoadingAnimation(
-              message: AppLocalizations.of(context)!.loading,
-            );
-          case StateActivity.hasData:
-            final stories = storiesProvider.listStories;
-            return ListView.builder(
-              controller: scrollController,
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 8,
-              ),
-              itemCount: stories.length + (storiesProvider.pageItems != null ? 1 : 0),
-              itemBuilder: (_, index) {
-                if (index == stories.length && storiesProvider.pageItems != null) {
-                  return loading;
-                }
-                // final stories = storiesProvider.storiesResponse.listStory[index];
-                final story = stories[index];
-                return StoryItem(story: story);
-              },
-            );
-          case StateActivity.error:
-            return TextMessage(
-              image: 'assets/images/no-internet.png',
-              message: AppLocalizations.of(context)?.lostConnection ??
-                  'Lost Connection',
-              titleButton: AppLocalizations.of(context)!.refresh,
-              onPressed: () => storiesProvider.refreshStory(context),
-            );
-        }
+        return state.map(
+            init: (_){
+              return const SizedBox();
+            },
+            loading: (_) {
+              return LoadingAnimation(
+                message: AppLocalizations.of(context)!.loading,
+              );
+            },
+            hasData: (_) {
+              final stories = storiesProvider.listStories;
+              return ListView.builder(
+                controller: scrollController,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
+                itemCount: stories.length + (storiesProvider.pageItems != null ? 1 : 0),
+                itemBuilder: (_, index) {
+                  if (index == stories.length && storiesProvider.pageItems != null) {
+                    return loading;
+                  }
+                  // final stories = storiesProvider.storiesResponse.listStory[index];
+                  final story = stories[index];
+                  return StoryItem(story: story);
+                },
+              );
+            },
+            error: (_) {
+              return TextMessage(
+                image: 'assets/images/no-internet.png',
+                message: AppLocalizations.of(context)?.lostConnection ??
+                    'Lost Connection',
+                titleButton: AppLocalizations.of(context)!.refresh,
+                onPressed: () => storiesProvider.refreshStory(context),
+              );
+            });
       }
     });
   }

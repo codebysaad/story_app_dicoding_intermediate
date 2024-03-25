@@ -9,7 +9,6 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:provider/provider.dart';
 import 'package:story_app/providers/stories_provider.dart';
-import 'package:story_app/utils/state_activity.dart';
 
 import '../layouts/loading_animation.dart';
 import '../layouts/placemark_widget.dart';
@@ -59,158 +58,162 @@ class _MapStoriesTabState extends State<MapStoriesTab> {
 
   Widget _buildList() {
     return Consumer<StoriesProvider>(builder: (key, storiesProvider, child) {
-      switch (storiesProvider.state) {
-        case StateActivity.init:
-          return const SizedBox();
-        case StateActivity.loading:
-          return LoadingAnimation(
-            message: AppLocalizations.of(context)!.loading,
-          );
-        case StateActivity.hasData:
-          return Center(
-            child: Stack(
-              children: [
-                GoogleMap(
-                  initialCameraPosition: CameraPosition(
-                    zoom: 7,
-                    target: initialLocation,
-                  ),
-                  markers: markers,
-                  mapType: selectedMapType,
-                  zoomControlsEnabled: false,
-                  mapToolbarEnabled: false,
-                  myLocationButtonEnabled: false,
-                  myLocationEnabled: true,
-                  onMapCreated: (controller) async {
-                    for (var data in storiesProvider.mapsResponse.listStory) {
-                      final info = await geo.placemarkFromCoordinates(
-                          data.lat, data.lon);
+      final state = storiesProvider.state;
+      return state.map(
+          init: (_) {
+            return const SizedBox();
+          },
+          loading: (_) {
+            return LoadingAnimation(
+              message: AppLocalizations.of(context)!.loading,
+            );
+          },
+          hasData: (_) {
+            return Center(
+              child: Stack(
+                children: [
+                  GoogleMap(
+                    initialCameraPosition: CameraPosition(
+                      zoom: 7,
+                      target: initialLocation,
+                    ),
+                    markers: markers,
+                    mapType: selectedMapType,
+                    zoomControlsEnabled: false,
+                    mapToolbarEnabled: false,
+                    myLocationButtonEnabled: false,
+                    myLocationEnabled: true,
+                    onMapCreated: (controller) async {
+                      for (var data in storiesProvider.mapsResponse.listStory) {
+                        final info = await geo.placemarkFromCoordinates(
+                            data.lat, data.lon);
 
-                      final place = info[0];
-                      final address =
-                          '${place.subLocality}, ${place.locality}, ${place.postalCode}, ${place.country}';
+                        final place = info[0];
+                        final address =
+                            '${place.subLocality}, ${place.locality}, ${place.postalCode}, ${place.country}';
 
-                      setState(() {
-                        placemark = place;
-                      });
-
-                      final mark = LatLng(data.lat, data.lon);
-
-                      final marker = Marker(
-                        markerId: MarkerId(data.id),
-                        position: mark,
-                        onTap: () {
-                          controller.animateCamera(
-                            CameraUpdate.newLatLngZoom(mark, 10),
-                          );
-                          setState(() {
-                            placemark = place;
-                          });
-                        },
-                        infoWindow: InfoWindow(
-                          title: data.name,
-                          snippet: address,
-                        ),
-                      );
-                      markers.add(marker);
-                    }
-                    setState(() {
-                      mapController = controller;
-                    });
-                  },
-                ),
-                Positioned(
-                  bottom: 75,
-                  right: 16,
-                  child: Column(
-                    children: [
-                      FloatingActionButton.small(
-                        heroTag: "zoom-in",
-                        onPressed: () {
-                          mapController.animateCamera(
-                            CameraUpdate.zoomIn(),
-                          );
-                        },
-                        child: const Icon(Icons.add),
-                      ),
-                      FloatingActionButton.small(
-                        heroTag: "zoom-out",
-                        onPressed: () {
-                          mapController.animateCamera(
-                            CameraUpdate.zoomOut(),
-                          );
-                        },
-                        child: const Icon(Icons.remove),
-                      ),
-                    ],
-                  ),
-                ),
-                Positioned(
-                  top: 16,
-                  right: 16,
-                  child: FloatingActionButton.small(
-                    onPressed: null,
-                    child: PopupMenuButton<MapType>(
-                      onSelected: (MapType item) {
                         setState(() {
-                          selectedMapType = item;
+                          placemark = place;
                         });
-                      },
-                      offset: const Offset(0, 54),
-                      icon: const Icon(Icons.layers_outlined),
-                      itemBuilder: (BuildContext context) =>
-                      <PopupMenuEntry<MapType>>[
-                        const PopupMenuItem<MapType>(
-                          value: MapType.normal,
-                          child: Text('Normal'),
+
+                        final mark = LatLng(data.lat, data.lon);
+
+                        final marker = Marker(
+                          markerId: MarkerId(data.id),
+                          position: mark,
+                          onTap: () {
+                            controller.animateCamera(
+                              CameraUpdate.newLatLngZoom(mark, 10),
+                            );
+                            setState(() {
+                              placemark = place;
+                            });
+                          },
+                          infoWindow: InfoWindow(
+                            title: data.name,
+                            snippet: address,
+                          ),
+                        );
+                        markers.add(marker);
+                      }
+                      setState(() {
+                        mapController = controller;
+                      });
+                    },
+                  ),
+                  Positioned(
+                    bottom: 75,
+                    right: 16,
+                    child: Column(
+                      children: [
+                        FloatingActionButton.small(
+                          heroTag: "zoom-in",
+                          onPressed: () {
+                            mapController.animateCamera(
+                              CameraUpdate.zoomIn(),
+                            );
+                          },
+                          child: const Icon(Icons.add),
                         ),
-                        const PopupMenuItem<MapType>(
-                          value: MapType.satellite,
-                          child: Text('Satellite'),
-                        ),
-                        const PopupMenuItem<MapType>(
-                          value: MapType.terrain,
-                          child: Text('Terrain'),
-                        ),
-                        const PopupMenuItem<MapType>(
-                          value: MapType.hybrid,
-                          child: Text('Hybrid'),
+                        FloatingActionButton.small(
+                          heroTag: "zoom-out",
+                          onPressed: () {
+                            mapController.animateCamera(
+                              CameraUpdate.zoomOut(),
+                            );
+                          },
+                          child: const Icon(Icons.remove),
                         ),
                       ],
                     ),
                   ),
-                ),
-                Positioned(
-                  top: 64,
-                  right: 16,
-                  child: FloatingActionButton.small(
-                    child: const Icon(Icons.my_location),
-                    onPressed: () => onMyLocationButtonPress(),
-                  ),
-                ),
-                if (placemark == null)
-                  const SizedBox()
-                else
                   Positioned(
-                    bottom: 16,
+                    top: 16,
                     right: 16,
-                    left: 16,
-                    child: PlacemarkWidget(
-                      placemark: placemark!,
+                    child: FloatingActionButton.small(
+                      onPressed: null,
+                      child: PopupMenuButton<MapType>(
+                        onSelected: (MapType item) {
+                          setState(() {
+                            selectedMapType = item;
+                          });
+                        },
+                        offset: const Offset(0, 54),
+                        icon: const Icon(Icons.layers_outlined),
+                        itemBuilder: (BuildContext context) =>
+                        <PopupMenuEntry<MapType>>[
+                          const PopupMenuItem<MapType>(
+                            value: MapType.normal,
+                            child: Text('Normal'),
+                          ),
+                          const PopupMenuItem<MapType>(
+                            value: MapType.satellite,
+                            child: Text('Satellite'),
+                          ),
+                          const PopupMenuItem<MapType>(
+                            value: MapType.terrain,
+                            child: Text('Terrain'),
+                          ),
+                          const PopupMenuItem<MapType>(
+                            value: MapType.hybrid,
+                            child: Text('Hybrid'),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-              ],
-            ),
-          );
-        case StateActivity.error:
-          return TextMessage(
-            image: 'assets/images/no-internet.png',
-            message: AppLocalizations.of(context)?.lostConnection ??
-                'Lost Connection',
-            titleButton: AppLocalizations.of(context)!.refresh,
-            onPressed: () => storiesProvider.getAllStories(),
-          );
-      }
+                  Positioned(
+                    top: 64,
+                    right: 16,
+                    child: FloatingActionButton.small(
+                      child: const Icon(Icons.my_location),
+                      onPressed: () => onMyLocationButtonPress(),
+                    ),
+                  ),
+                  if (placemark == null)
+                    const SizedBox()
+                  else
+                    Positioned(
+                      bottom: 16,
+                      right: 16,
+                      left: 16,
+                      child: PlacemarkWidget(
+                        placemark: placemark!,
+                      ),
+                    ),
+                ],
+              ),
+            );
+          },
+          error: (_) {
+            return TextMessage(
+              image: 'assets/images/no-internet.png',
+              message: AppLocalizations.of(context)?.lostConnection ??
+                  'Lost Connection',
+              titleButton: AppLocalizations.of(context)!.refresh,
+              onPressed: () => storiesProvider.getAllStories(),
+            );
+          });
     });
   }
 

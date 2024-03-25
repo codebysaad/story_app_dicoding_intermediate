@@ -6,9 +6,9 @@ import 'package:provider/provider.dart';
 import 'package:story_app/providers/stories_provider.dart';
 import 'package:story_app/utils/state_activity.dart';
 
+import '../layouts/loading_animation.dart';
 import '../providers/location_provider.dart';
-import 'package:story_app/layouts/placemark_widget.dart';
-
+import '../layouts/placemark_widget.dart';
 import '../utils/common.dart';
 import '../utils/platform_widget.dart';
 
@@ -61,7 +61,7 @@ class _GoogleMapsState extends State<GoogleMapsPage> {
     return Scaffold(
       body: SafeArea(
         child: Consumer<LocationProvider>(
-          builder: (context, locationProvider, _) {
+          builder: (context, locationProvider, child) {
             return Stack(
               children: [
                 GoogleMap(
@@ -78,8 +78,8 @@ class _GoogleMapsState extends State<GoogleMapsPage> {
                   markers: locationProvider.markers,
                   mapType: locationProvider.selectedMapType,
                   zoomControlsEnabled: false,
-                  onTap: (argument) =>
-                      locationProvider.onTapMap(context, mapController, argument),
+                  onTap: (argument) => locationProvider.onTapMap(
+                      context, mapController, argument),
                 ),
                 if (locationProvider.placemark != null)
                   Positioned(
@@ -92,21 +92,20 @@ class _GoogleMapsState extends State<GoogleMapsPage> {
                         Consumer<StoriesProvider>(
                           builder: (context, storiesProv, _) {
                             return FloatingActionButton.small(
-                              backgroundColor: Colors.teal,
-                              foregroundColor: Colors.white,
-                              onPressed: () {
-                                storiesProv.addLocation(context);
-                                context.pop();
-                                debugPrint(storiesProv.lat.toString());
-                                debugPrint(storiesProv.lon.toString());
-                              },
-                              child: const Column(
-                                children: [
-                                  Icon(Icons.add_location_alt_outlined),
-                                  Text('Save'),
-                                ],
-                              )
-                            );
+                                backgroundColor: Colors.teal,
+                                foregroundColor: Colors.white,
+                                onPressed: () {
+                                  storiesProv.addLocation(context);
+                                  context.pop();
+                                  debugPrint(storiesProv.lat.toString());
+                                  debugPrint(storiesProv.lon.toString());
+                                },
+                                child: const Column(
+                                  children: [
+                                    Icon(Icons.add_location_alt_outlined),
+                                    Text('Save'),
+                                  ],
+                                ));
                           },
                         ),
                         const SizedBox(height: 8),
@@ -135,7 +134,7 @@ class _GoogleMapsState extends State<GoogleMapsPage> {
                               offset: const Offset(0, 54),
                               icon: const Icon(Icons.layers_outlined),
                               itemBuilder: (BuildContext context) =>
-                              <PopupMenuEntry<MapType>>[
+                                  <PopupMenuEntry<MapType>>[
                                 const PopupMenuItem<MapType>(
                                   value: MapType.normal,
                                   child: Text('Normal'),
@@ -158,7 +157,8 @@ class _GoogleMapsState extends State<GoogleMapsPage> {
                           FloatingActionButton.small(
                             heroTag: 'your-location',
                             onPressed: () {
-                              locationProvider.getMyLocation(context, mapController);
+                              locationProvider.getMyLocation(
+                                  context, mapController);
                             },
                             child: const Icon(Icons.my_location),
                           ),
@@ -186,16 +186,10 @@ class _GoogleMapsState extends State<GoogleMapsPage> {
                     ],
                   ),
                 ),
-                if (locationProvider.state ==  StateActivity.loading)
-                  Container(
-                    decoration: const BoxDecoration(
-                      color: Colors.black45,
-                    ),
-                    child: Center(
-                      child: CircularProgressIndicator(
-                        color: Colors.blueAccent,
-                      ),
-                    ),
+                if (locationProvider.state == const StateActivity.loading())
+                  LoadingAnimation(
+                    message: AppLocalizations.of(context)?.loggingOut ??
+                        'Logging Out...',
                   ),
               ],
             );

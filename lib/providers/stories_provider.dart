@@ -52,7 +52,7 @@ class StoriesProvider with ChangeNotifier {
 
   GeneralResponse get addNewStoryResponse => _addNewStoryResponse;
 
-  StateActivity _state = StateActivity.init;
+  StateActivity _state = const StateActivity.init();
 
   StateActivity get state => _state;
 
@@ -112,7 +112,7 @@ class StoriesProvider with ChangeNotifier {
       final token = preferenceProvider.authToken;
 
       if (pageItems == 1) {
-        _state = StateActivity.loading;
+        _state = const StateActivity.loading();
         notifyListeners();
       }
 
@@ -121,7 +121,7 @@ class StoriesProvider with ChangeNotifier {
 
       _storiesResponse = responses;
       listStories.addAll(_storiesResponse!.listStory);
-      _state = StateActivity.hasData;
+      _state = const StateActivity.hasData();
 
       if (_storiesResponse!.listStory.length < sizeItems) {
         pageItems = null;
@@ -131,7 +131,7 @@ class StoriesProvider with ChangeNotifier {
       notifyListeners();
     } catch (e) {
       _isLoading = false;
-      _state = StateActivity.error;
+      _state = const StateActivity.error();
       notifyListeners();
       _message = 'Error --> $e';
     }
@@ -139,7 +139,7 @@ class StoriesProvider with ChangeNotifier {
 
   Future<dynamic> getAllStoriesMap() async {
     _isLoading = true;
-    _state = StateActivity.loading;
+    _state = const StateActivity.loading();
     notifyListeners();
     try {
       final token = preferenceProvider.authToken;
@@ -147,14 +147,14 @@ class StoriesProvider with ChangeNotifier {
       final responses = await apiServices.getAllStoriesMaps(token);
 
       _isLoading = false;
-      _state = StateActivity.hasData;
+      _state = const StateActivity.hasData();
       _message = responses.message;
       log('Maps: ${responses.listStory[0].name.toString()}');
       _mapsResponse = responses;
       notifyListeners();
     } catch (e) {
       _isLoading = false;
-      _state = StateActivity.error;
+      _state = const StateActivity.error();
       _message = 'Error --> $e';
       notifyListeners();
     }
@@ -166,20 +166,20 @@ class StoriesProvider with ChangeNotifier {
       log('Token Stories Prov: $token');
 
       _isLoading = true;
-      _state = StateActivity.loading;
+      _state = const StateActivity.loading();
       notifyListeners();
 
       final responses = await apiServices.getStoryDetails(token, id);
       _detailsStoryResponse = responses;
       _isLoading = false;
-      _state = StateActivity.hasData;
+      _state = const StateActivity.hasData();
       _message = responses.message;
       log(responses.story.name.toString());
       log('Detail Story : ${responses.story.lat}');
       notifyListeners();
     } catch (e) {
       _isLoading = false;
-      _state = StateActivity.error;
+      _state = const StateActivity.error();
       _message = 'Error --> $e';
       log('Exception : $e');
       notifyListeners();
@@ -189,7 +189,7 @@ class StoriesProvider with ChangeNotifier {
 
   Future<dynamic> addNewStory({required String description, required BuildContext context}) async {
     _isLoading = true;
-    _state = StateActivity.loading;
+    _state = const StateActivity.loading();
     notifyListeners();
     try {
       final token = preferenceProvider.authToken;
@@ -204,7 +204,7 @@ class StoriesProvider with ChangeNotifier {
 
       _addNewStoryResponse = addingStory;
       _isLoading = false;
-      _state = StateActivity.hasData;
+      _state = const StateActivity.hasData();
       _message = addingStory.message;
       setImageFile(null);
       setImagePath(null);
@@ -216,7 +216,7 @@ class StoriesProvider with ChangeNotifier {
       notifyListeners();
     } catch (e) {
       _isLoading = false;
-      _state = StateActivity.error;
+      _state = const StateActivity.error();
       _message = 'Error --> $e';
       log(_message);
       notifyListeners();

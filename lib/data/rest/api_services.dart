@@ -1,12 +1,15 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:story_app/data/models/details_story_response.dart';
 import 'package:story_app/data/models/general_response.dart';
 import 'package:story_app/data/models/login_response.dart';
 import 'package:story_app/data/models/maps_response.dart';
 import 'package:story_app/data/models/stories_response.dart';
+
+import '../../utils/typedef.dart';
 
 class ApiServices {
   final http.Client client;
@@ -28,6 +31,24 @@ class ApiServices {
       return GeneralResponse.fromJson(json.decode(response.body));
     } else {
       throw Exception('Failed to load data');
+    }
+  }
+
+  Future<DataMap?> newLogin(BuildContext context, String email, String password) async {
+    final url = Uri.parse('$baseUrl/login');
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'email': email,
+          'password': password,
+        }),
+      );
+      return jsonDecode(response.body) as DataMap;
+    } catch (e) {
+      if (!context.mounted) return null;
+      throw const HttpException('Failed to load data');
     }
   }
 

@@ -13,7 +13,7 @@ class LocationProvider extends ChangeNotifier {
 
   final Set<Marker> markers = {};
   MapType selectedMapType = MapType.normal;
-  StateActivity state = StateActivity.init;
+  StateActivity state = const StateActivity.init();
 
   geo.Placemark? placemark;
   String address = '';
@@ -77,7 +77,7 @@ class LocationProvider extends ChangeNotifier {
       }
     }
 
-    state = StateActivity.loading;
+    state = const StateActivity.loading();
     notifyListeners();
 
     locationData = await location.getLocation();
@@ -101,7 +101,7 @@ class LocationProvider extends ChangeNotifier {
       return;
     }
 
-    state = StateActivity.hasData;
+    state = const StateActivity.hasData();
     notifyListeners();
     return;
   }
