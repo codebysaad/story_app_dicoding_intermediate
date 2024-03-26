@@ -102,12 +102,8 @@ class _GoogleMapsState extends State<GoogleMapsPage> {
                                   log(storiesProv.lat.toString());
                                   log(storiesProv.lon.toString());
                                 },
-                                child: const Column(
-                                  children: [
-                                    Icon(Icons.add_location_alt_outlined),
-                                    Text('Save'),
-                                  ],
-                                ));
+                                child: const Icon(Icons.add_location_alt_outlined),
+                            );
                           },
                         ),
                         const SizedBox(height: 8),
@@ -190,8 +186,8 @@ class _GoogleMapsState extends State<GoogleMapsPage> {
                 ),
                 if (locationProvider.state == const StateActivity.loading())
                   LoadingAnimation(
-                    message: AppLocalizations.of(context)?.loading ??
-                        'Loading...',
+                    message:
+                        AppLocalizations.of(context)?.loading ?? 'Loading...',
                   ),
               ],
             );

@@ -11,6 +11,7 @@ import 'package:story_app/data/models/details_story_response.dart';
 import 'package:story_app/data/models/general_response.dart';
 import 'package:story_app/data/models/maps_response.dart';
 import 'package:story_app/data/models/stories_response.dart';
+import 'package:story_app/data/models/story_details.dart';
 import 'package:story_app/providers/preference_provider.dart';
 import 'package:story_app/utils/state_activity.dart';
 import 'package:image/image.dart' as img;
@@ -48,11 +49,13 @@ class StoriesProvider with ChangeNotifier {
 
   DetailsStoryResponse get detailsStoryResponse => _detailsStoryResponse;
 
+  StoryDetails? storyDetails;
+
   late GeneralResponse _addNewStoryResponse;
 
   GeneralResponse get addNewStoryResponse => _addNewStoryResponse;
 
-  StateActivity _state = const StateActivity.init();
+  StateActivity _state = const StateActivityInit();
 
   StateActivity get state => _state;
 
@@ -162,30 +165,31 @@ class StoriesProvider with ChangeNotifier {
   }
 
   Future<dynamic> getDetailStory({required String id}) async {
-    try {
+
       final token = preferenceProvider.authToken;
       log('Token Stories Prov: $token');
 
       _isLoading = true;
-      _state = const StateActivity.loading();
+      _state = const StateActivityLoading();
       notifyListeners();
 
       final responses = await apiServices.getStoryDetails(token, id);
-      _detailsStoryResponse = responses;
-      _isLoading = false;
-      _state = const StateActivity.hasData();
-      _message = responses.message;
-      log(responses.story.name.toString());
-      log('Detail Story : ${responses.story.lat}');
-      notifyListeners();
-    } catch (e) {
-      _isLoading = false;
-      _state = const StateActivity.error();
-      _message = 'Error --> $e';
-      log('Exception : $e');
-      notifyListeners();
-      return _message;
-    }
+
+      if(responses.error){
+        _isLoading = false;
+        _state = const StateActivityError();
+        _message = 'Error --> ${responses.message}';
+        log('Exception : ${responses.message}');
+        notifyListeners();
+      } else {
+        _detailsStoryResponse = responses;
+        _isLoading = false;
+        _state = const StateActivityHasData();
+        _message = responses.message;
+        log(responses.story.name.toString());
+        log('Detail Story : ${responses.story.lat}');
+        notifyListeners();
+      }
   }
 
   Future<dynamic> addNewStory({required String description, required BuildContext context}) async {
