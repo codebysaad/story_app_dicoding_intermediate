@@ -181,7 +181,7 @@ class _RegisterPage extends State<RegisterPage> {
                     Consumer<AuthProvider>(builder: (context, provider, child) {
                       WidgetsBinding.instance.addPostFrameCallback((_) {
                         if (provider.message != "") {
-                          if (provider.state == const StateActivityError()) {
+                          if (provider.stateLogin == const StateActivityError()) {
                             Fluttertoast.showToast(
                                 msg: provider.message,
                                 toastLength: Toast.LENGTH_SHORT,
@@ -200,6 +200,7 @@ class _RegisterPage extends State<RegisterPage> {
                                 textColor: Colors.white,
                                 fontSize: 16.0);
                             context.pop();
+                            // context.goNamed(AppRoutePaths.loginRouteName);
                           }
                         }
                       });
@@ -218,17 +219,15 @@ class _RegisterPage extends State<RegisterPage> {
                                           email: _emailController.text,
                                           password: _passwordController.text);
                                     } else {
-                                      if(!context.mounted) {
-                                        final message = AppLocalizations.of(context)?.passwordNotMatch;
-                                        Fluttertoast.showToast(
-                                            msg: message!,
-                                            toastLength: Toast.LENGTH_SHORT,
-                                            gravity: ToastGravity.CENTER,
-                                            timeInSecForIosWeb: 1,
-                                            backgroundColor: Colors.red,
-                                            textColor: Colors.white,
-                                            fontSize: 16.0);
-                                      }
+                                      Fluttertoast.showToast(
+                                          msg: AppLocalizations.of(context)?.passwordNotMatch ??
+                                              'Password Not Match!',
+                                          toastLength: Toast.LENGTH_SHORT,
+                                          gravity: ToastGravity.CENTER,
+                                          timeInSecForIosWeb: 1,
+                                          backgroundColor: Colors.red,
+                                          textColor: Colors.white,
+                                          fontSize: 16.0);
                                     }
                                   }
                                 },

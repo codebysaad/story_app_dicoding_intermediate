@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -97,8 +99,8 @@ class _GoogleMapsState extends State<GoogleMapsPage> {
                                 onPressed: () {
                                   storiesProv.addLocation(context);
                                   context.pop();
-                                  debugPrint(storiesProv.lat.toString());
-                                  debugPrint(storiesProv.lon.toString());
+                                  log(storiesProv.lat.toString());
+                                  log(storiesProv.lon.toString());
                                 },
                                 child: const Column(
                                   children: [
@@ -188,8 +190,8 @@ class _GoogleMapsState extends State<GoogleMapsPage> {
                 ),
                 if (locationProvider.state == const StateActivity.loading())
                   LoadingAnimation(
-                    message: AppLocalizations.of(context)?.loggingOut ??
-                        'Logging Out...',
+                    message: AppLocalizations.of(context)?.loading ??
+                        'Loading...',
                   ),
               ],
             );

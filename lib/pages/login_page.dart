@@ -19,10 +19,10 @@ class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
   @override
-  _LoginPage createState() => _LoginPage();
+  State<LoginPage> createState() => _LoginPageState();
 }
 
-class _LoginPage extends State<LoginPage> {
+class _LoginPageState extends State<LoginPage> {
   late final PreferenceProvider preferenceProv;
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -148,17 +148,7 @@ class _LoginPage extends State<LoginPage> {
                               WidgetsBinding.instance
                                   .addPostFrameCallback((_) {
                                 if (authProvider.message != "") {
-                                  if (authProvider.state == const StateActivityError()) {
-                                    Fluttertoast.showToast(
-                                        msg: authProvider.message,
-                                        toastLength: Toast.LENGTH_SHORT,
-                                        gravity: ToastGravity.CENTER,
-                                        timeInSecForIosWeb: 1,
-                                        backgroundColor: Colors.red,
-                                        textColor: Colors.white,
-                                        fontSize: 16.0);
-                                    authProvider.clear();
-                                  } else {
+                                  if (authProvider.stateLogin == const StateActivityHasData()) {
                                     Fluttertoast.showToast(
                                         msg: authProvider.message,
                                         toastLength: Toast.LENGTH_SHORT,
@@ -169,6 +159,16 @@ class _LoginPage extends State<LoginPage> {
                                         fontSize: 16.0);
                                     authProvider.clear();
                                     context.go(AppRoutePaths.rootRouteName);
+                                  } else {
+                                    Fluttertoast.showToast(
+                                        msg: authProvider.message,
+                                        toastLength: Toast.LENGTH_SHORT,
+                                        gravity: ToastGravity.CENTER,
+                                        timeInSecForIosWeb: 1,
+                                        backgroundColor: Colors.red,
+                                        textColor: Colors.white,
+                                        fontSize: 16.0);
+                                    authProvider.clear();
                                   }
                                 }
                               });

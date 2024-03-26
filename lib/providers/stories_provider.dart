@@ -262,4 +262,10 @@ class StoriesProvider with ChangeNotifier {
     lon = locProv.initLocation.longitude;
     notifyListeners();
   }
+
+  void refreshLocation() {
+    lat = null;
+    lon = null;
+    notifyListeners();
+  }
 }

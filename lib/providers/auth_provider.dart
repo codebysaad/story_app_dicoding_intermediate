@@ -25,9 +25,13 @@ class AuthProvider with ChangeNotifier {
 
   GeneralResponse get registerResponse => _registerResponse;
 
-  StateActivity _state = const StateActivityInit();
+  StateActivity _stateLogin = const StateActivityInit();
 
-  StateActivity get state => _state;
+  StateActivity get stateLogin => _stateLogin;
+
+  StateActivity _stateRegister = const StateActivityInit();
+
+  StateActivity get stateRegister => _stateRegister;
 
   bool _isLoading = false;
 
@@ -55,7 +59,7 @@ class AuthProvider with ChangeNotifier {
   Future<dynamic> login(BuildContext context,
       {required String email, required String password}) async {
       _isLoading = true;
-      _state = const StateActivityLoading();
+      _stateLogin = const StateActivityLoading();
       notifyListeners();
 
       final authenticating = await apiServices.login(email, password);
@@ -65,7 +69,7 @@ class AuthProvider with ChangeNotifier {
         log('Login: $_loginResponse');
         _isLoading = false;
         _isLoggedIn = true;
-        _state = const StateActivityHasData();
+        _stateLogin = const StateActivityHasData();
         _message = authenticating.message;
         if (!context.mounted) return;
         await saveCredential(context, authenticating.loginData!);
@@ -74,36 +78,11 @@ class AuthProvider with ChangeNotifier {
       } else {
         _isLoading = false;
         _isLoggedIn = false;
-        _state = const StateActivityError();
+        _stateLogin = const StateActivityError();
         _message = authenticating.message;
         log(authenticating.loginData.toString());
         notifyListeners();
       }
-  }
-
-  Future<dynamic> loginBackup(
-      {required String email, required String password}) async {
-    try {
-      _isLoading = true;
-      _state = const StateActivityLoading();
-      notifyListeners();
-
-      final authenticating = await apiServices.login(email, password);
-
-      _loginResponse = authenticating;
-      log('Login: $_loginResponse');
-      _isLoading = false;
-      _state = const StateActivityHasData();
-      _message = authenticating.message;
-      log(authenticating.loginData.toString());
-      notifyListeners();
-    } catch (e) {
-      _isLoading = false;
-      _state = const StateActivityError();
-      _message = 'Error --> $e';
-      notifyListeners();
-      return _message;
-    }
   }
 
   Future<dynamic> register(
@@ -112,24 +91,26 @@ class AuthProvider with ChangeNotifier {
         required String password}) async {
 
       _isLoading = true;
-      _state = const StateActivityLoading();
+      _stateRegister = const StateActivityLoading();
       notifyListeners();
 
       final registering = await apiServices.register(name, email, password);
 
       if(registering.error){
         _isLoading = false;
-        _state = const StateActivityError();
+        _stateRegister = const StateActivityError();
+        _isLoggedIn = false;
         _message = 'Error --> ${registering.message}';
-        notifyListeners();
         log('Return Catch: ${registering.message}');
+        notifyListeners();
       } else {
         _registerResponse = registering;
         _isLoading = false;
-        _state = const StateActivityHasData();
+        _isLoggedIn = false;
+        _stateRegister = const StateActivityHasData();
         _message = registering.message;
-        notifyListeners();
         log('Return Success: ${registering.message}');
+        notifyListeners();
       }
 
   }
